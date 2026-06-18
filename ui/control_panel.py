@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 
 
@@ -57,4 +56,4 @@ def render_control_panel():
         show_trellis,
         show_ber
     )
-```
+
