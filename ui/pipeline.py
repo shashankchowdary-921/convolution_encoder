@@ -47,4 +47,3 @@ def render_pipeline(stage):
                 """,
                 unsafe_allow_html=True
             )
-```
