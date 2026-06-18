@@ -13,11 +13,12 @@ def render_transmission_section(
     recovery_efficiency
 ):
 
-    render_section_header(
-        "Transmission Result",
-        "End-to-end communication performance"
-    )
+def render_section_header(title, subtitle=""):
+    st.subheader(title)
 
+    if subtitle:
+        st.caption(subtitle)
+        
     col1, col2 = st.columns(2)
 
     with col1:
