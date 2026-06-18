@@ -1,6 +1,3 @@
-"""
-app.py – Clean, professional Streamlit application
-"""
 
 import streamlit as st
 import numpy as np
