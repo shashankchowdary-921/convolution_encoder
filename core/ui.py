@@ -224,19 +224,18 @@ def render_header():
     """, unsafe_allow_html=True)
 
 
-def render_pipeline(stage, snr=None):
+def render_pipeline(stage):
     """
-    stage: dict with keys: text, binary, encoded, received, decoded, recovered
+    stage: dict with keys: text, binary, encoded, snr, decoded, recovered
     """
     steps = [
         ("Text", stage.get("text", "—")),
         ("Binary", stage.get("binary", "—")),
         ("Encoder", stage.get("encoded", "—")),
-        ("AWGN", f"{stage.get('snr', '—')} dB" if snr is not None else "—"),
+        ("AWGN", f"{stage.get('snr', '—')} dB" if stage.get('snr') is not None else "—"),
         ("Viterbi", stage.get("decoded", "—")),
         ("Recovered", stage.get("recovered", "—"))
     ]
-    # Render pipeline as horizontal flow
     html = '<div class="pipeline-container">'
     for i, (label, value) in enumerate(steps):
         html += f'''
@@ -290,27 +289,26 @@ def render_bitstream(bits, label, highlight_errors=None, highlight_corrected=Non
     highlight_errors: indices of bits that are wrong (red)
     highlight_corrected: indices of bits that were corrected (green)
     """
+    if highlight_errors is None:
+        highlight_errors = []
+    if highlight_corrected is None:
+        highlight_corrected = []
     # Group into bytes
     groups = [bits[i:i+8] for i in range(0, len(bits), 8)]
     html = f'<div class="bit-block"><span style="font-weight:600; color:#888; font-size:12px;">{label}</span><br>'
-    byte_idx = 0
-    for group in groups:
-        # Pad last group if needed
+    for byte_idx, group in enumerate(groups):
         if len(group) < 8:
             group = group.ljust(8, '0')
-        # Build each bit with highlighting
         bits_html = ''
         for i, ch in enumerate(group):
             idx = byte_idx*8 + i
             cls = 'bit-0' if ch == '0' else 'bit-1'
-            if highlight_errors and idx in highlight_errors:
+            if idx in highlight_errors:
                 cls += ' error'
-            elif highlight_corrected and idx in highlight_corrected:
+            elif idx in highlight_corrected:
                 cls += ' correct'
             bits_html += f'<span class="{cls}">{ch}</span>'
-        # Add a space between bytes
         html += bits_html + ' '
-        byte_idx += 1
     html += '</div>'
     st.markdown(html, unsafe_allow_html=True)
 
@@ -341,8 +339,7 @@ def render_trellis(trellis_path, state_labels=['00','01','10','11']):
                 text=f"Step {step}<br>State {state_labels[state]}"
             ))
 
-    # Draw edges (including all possible for background, but only highlight survivor)
-    # For simplicity, we only draw the survivor path edges (solid)
+    # Draw edges (only survivor path for clarity; you could draw all, but we keep it simple)
     path_x, path_y = [], []
     for i, trans in enumerate(trellis_path):
         from_s = trans['from_state']
@@ -374,8 +371,9 @@ def render_trellis(trellis_path, state_labels=['00','01','10','11']):
         name='Survivor Path'
     ))
 
+    # Fixed: use integer weight (600) or remove weight key
     fig.update_layout(
-        title=None,
+        title=None,  # No title to keep it clean
         xaxis=dict(
             showgrid=False,
             zeroline=False,
@@ -428,7 +426,6 @@ def render_ber_plot(snr_values, ber_values, theoretical_ber=None):
     ax.tick_params(colors='#888888', labelsize=10)
     ax.legend(frameon=True, facecolor='white', edgecolor='#E5E3E0', fontsize=10)
 
-    # Add caption
     st.pyplot(fig)
     plt.close(fig)
     st.caption("Fig. 1: BER vs SNR for rate‑1/2, K=3 convolutional code.")
@@ -439,7 +436,6 @@ def render_overview_tab(stage):
     st.subheader("Process Pipeline")
     render_pipeline(stage)
     st.subheader("Key Metrics")
-    # Reuse summary but perhaps with more detail
     cols = st.columns(4)
     with cols[0]:
         st.metric("Original Length", len(stage.get("binary","")))
@@ -464,4 +460,3 @@ def render_bit_analysis(original_bits, received_bits, decoded_bits, flipped_indi
         <span><span style="background:#E5F9F0; padding:0 4px; border-radius:2px;">Green</span> = corrected error</span>
     </div>
     """, unsafe_allow_html=True)
-    
