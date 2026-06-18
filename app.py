@@ -76,7 +76,6 @@ render_header()
 (
     input_text,
     snr_db,
-    run_clicked,
     show_trellis,
     show_ber
 ) = render_control_panel()
