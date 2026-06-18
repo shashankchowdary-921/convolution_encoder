@@ -1,4 +1,6 @@
 class ViterbiDecoder:
+    """Viterbi decoder for rate-1/2, K=3 convolutional code (4 states)."""
+    
     def __init__(self):
         self.num_states = 4
         self.next_state = {}
@@ -6,12 +8,13 @@ class ViterbiDecoder:
         self._build_trellis()
     
     def _build_trellis(self):
+        """Build trellis transitions for states 0-3 (00,01,10,11)."""
         for state in range(self.num_states):
-            reg = [(state >> 1) & 1, state & 1]
+            reg = [(state >> 1) & 1, state & 1]   # [x[n-1], x[n-2]]
             for input_bit in [0, 1]:
                 full_reg = [input_bit, reg[0], reg[1]]
-                out1 = full_reg[0] ^ full_reg[1] ^ full_reg[2]
-                out2 = full_reg[0] ^ full_reg[2]
+                out1 = full_reg[0] ^ full_reg[1] ^ full_reg[2]   # G1 = 111
+                out2 = full_reg[0] ^ full_reg[2]                 # G2 = 101
                 next_state = (input_bit << 1) | reg[0]
                 self.next_state[(state, input_bit)] = next_state
                 self.output[(state, input_bit)] = (out1, out2)
@@ -20,6 +23,7 @@ class ViterbiDecoder:
         return (bits1[0] ^ bits2[0]) + (bits1[1] ^ bits2[1])
     
     def decode(self, received_bits: str) -> str:
+        """Decode received bitstream (even length)."""
         if len(received_bits) % 2 != 0:
             raise ValueError("Received bits must have even length")
         
@@ -47,6 +51,7 @@ class ViterbiDecoder:
             path_metrics = new_metrics
             survivors.append(survivors_step)
         
+        # Traceback
         best_state = min(range(self.num_states), key=lambda s: path_metrics[s])
         decoded_bits = []
         for step in range(len(survivors) - 1, -1, -1):
@@ -58,6 +63,7 @@ class ViterbiDecoder:
         return ''.join(decoded_bits)
     
     def decode_with_trellis(self, received_bits: str) -> dict:
+        """Decode and also return trellis path for visualization."""
         if len(received_bits) % 2 != 0:
             raise ValueError("Received bits must have even length")
         
