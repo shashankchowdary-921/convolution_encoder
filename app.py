@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
-
+import math
 from core.encoder import ConvolutionalEncoder
 from core.decoder import ViterbiDecoder
 from core.channel import AWGNChannel
