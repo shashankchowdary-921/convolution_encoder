@@ -44,20 +44,22 @@ apply_custom_css()
 # =====================================================
 @st.cache_resource
 def get_encoder():
-return ConvolutionalEncoder()
+    return ConvolutionalEncoder()
+
 
 @st.cache_resource
 def get_decoder():
-return ViterbiDecoder()
+    return ViterbiDecoder()
+
 
 @st.cache_resource
 def get_channel():
-return AWGNChannel()
+    return AWGNChannel()
+
 
 encoder = get_encoder()
 decoder = get_decoder()
 channel = get_channel()
-
 # =====================================================
 
 # HEADER
