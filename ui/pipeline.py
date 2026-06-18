@@ -1,11 +1,14 @@
-
 import streamlit as st
 
 
 def render_pipeline(stage):
 
-    items = [
-        ("Text", stage["text"]),
+    st.markdown("### Communication Pipeline")
+
+    cols = st.columns(6)
+
+    steps = [
+        ("Input", stage["text"]),
         ("Binary", stage["binary"]),
         ("Encoder", stage["encoded"]),
         ("AWGN", f'{stage["snr"]} dB'),
@@ -13,9 +16,7 @@ def render_pipeline(stage):
         ("Output", stage["recovered"])
     ]
 
-    cols = st.columns(len(items))
-
-    for col, (title, value) in zip(cols, items):
+    for col, (title, value) in zip(cols, steps):
 
         with col:
 
@@ -27,22 +28,31 @@ def render_pipeline(stage):
                     border-radius:12px;
                     padding:16px;
                     min-height:120px;
+                    display:flex;
+                    flex-direction:column;
+                    justify-content:space-between;
                 ">
+
                     <div style="
-                        font-size:0.8rem;
-                        color:#666666;
-                        margin-bottom:8px;
+                        font-size:0.75rem;
+                        font-weight:600;
+                        color:#6B7280;
+                        text-transform:uppercase;
+                        letter-spacing:0.05em;
                     ">
                         {title}
                     </div>
 
                     <div style="
+                        margin-top:12px;
+                        font-size:1rem;
                         font-weight:600;
-                        color:#111111;
-                        word-wrap:break-word;
+                        color:#111827;
+                        word-break:break-word;
                     ">
                         {value}
                     </div>
+
                 </div>
                 """,
                 unsafe_allow_html=True
