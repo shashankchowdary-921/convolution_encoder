@@ -1,8 +1,10 @@
 class ConvolutionalEncoder:
+    """Rate-1/2, K=3 convolutional encoder with G₁=111, G₂=101."""
+    
     def __init__(self):
-        self.reg = [0, 0, 0]
-        self.g1_taps = [0, 1, 2]
-        self.g2_taps = [0, 2]
+        self.reg = [0, 0, 0]          # shift register [x[n], x[n-1], x[n-2]]
+        self.g1_taps = [0, 1, 2]      # 111
+        self.g2_taps = [0, 2]         # 101
     
     def reset(self):
         self.reg = [0, 0, 0]
@@ -19,6 +21,7 @@ class ConvolutionalEncoder:
         return result
     
     def encode(self, bits: str) -> str:
+        """Encode a binary string, returns double-length codeword."""
         self.reset()
         output = []
         for bit in bits:
