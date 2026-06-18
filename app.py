@@ -13,15 +13,13 @@ from core.utils import text_to_bits, bits_to_text, calculate_ber
 
 from core.ui import (
     apply_custom_css,
-    render_header,
     render_sidebar,
+    render_header,
     render_pipeline,
     render_summary,
     render_bitstream,
     render_trellis,
-    render_ber_plot,
-    render_overview_tab,
-    render_bit_analysis
+    render_ber_plot
 )
 
 st.set_page_config(
@@ -85,7 +83,9 @@ if run_clicked:
         'error_indices': error_indices,
         'errors_corrected': errors_corrected
     }
-
+    if not run_clicked:
+        st.info("Enter a message and click Run Simulation.")
+        st.stop()
 # ─── Display results if available ──────────────────────────────────────
 
 results = st.session_state.results
