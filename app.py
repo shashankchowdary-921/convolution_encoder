@@ -73,23 +73,20 @@ render_header()
 # CONTROLS
 
 # =====================================================
-
 (
-input_text,
-snr_db,
-run_clicked,
-show_trellis,
-show_ber
+    input_text,
+    snr_db,
+    run_clicked,
+    show_trellis,
+    show_ber
 ) = render_control_panel()
 
 if not run_clicked:
-st.info("Enter a message and click Run Simulation.")
-st.stop()
+    st.info("Enter a message and click Run Simulation.")
+    st.stop()
 
 # =====================================================
-
 # PROCESSING
-
 # =====================================================
 
 binary = text_to_bits(input_text)
@@ -97,14 +94,14 @@ binary = text_to_bits(input_text)
 encoded = encoder.encode(binary)
 
 received, tx_symbols, rx_symbols = channel.transmit(
-encoded,
-snr_db
+    encoded,
+    snr_db
 )
 
 channel_errors = sum(
-1
-for a, b in zip(encoded, received)
-if a != b
+    1
+    for a, b in zip(encoded, received)
+    if a != b
 )
 
 decoded_result = decoder.decode_with_trellis(received)
@@ -114,21 +111,20 @@ decoded = decoded_result["output"]
 recovered_text = bits_to_text(decoded)
 
 ber = calculate_ber(
-binary,
-decoded
+    binary,
+    decoded
 )
 
 remaining_errors = sum(
-1
-for a, b in zip(binary, decoded)
-if a != b
+    1
+    for a, b in zip(binary, decoded)
+    if a != b
 )
 
 errors_corrected = max(
-channel_errors - remaining_errors,
-0
+    channel_errors - remaining_errors,
+    0
 )
-
 # =====================================================
 
 # PIPELINE DATA
