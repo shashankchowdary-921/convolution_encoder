@@ -169,110 +169,122 @@ st.markdown("---")
 
 # =====================================================
 
-tab1, tab2, tab3, tab4 = st.tabs(
-[
-"Overview",
-"Bit Analysis",
-"Trellis Diagram",
-"BER Analysis"
-]
+st.markdown("---")
+st.header("Overview")
+
+# overview content
+
+st.markdown("---")
+st.header("Bitstream Analysis")
+
+# bit comparison
+
+st.markdown("---")
+st.header("Trellis Diagram")
+
+# trellis
+
+st.markdown("---")
+st.header("BER Performance")
+
+# ber plot
+
+# =====================================================
+
+# OVERVIEW
+
+# =====================================================
+# =====================================================
+# OVERVIEW
+# =====================================================
+st.markdown("---")
+st.header("Overview")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    st.subheader("Input")
+
+    st.write(input_text)
+
+    st.metric(
+        "Input Bits",
+        len(binary)
+    )
+
+    st.metric(
+        "Encoded Bits",
+        len(encoded)
+    )
+
+with col2:
+
+    st.subheader("Output")
+
+    st.write(recovered_text)
+
+    st.metric(
+        "Channel Errors",
+        channel_errors
+    )
+
+    st.metric(
+        "Remaining Errors",
+        remaining_errors
+    )
+# =====================================================
+
+# BIT ANALYSIS
+
+# =====================================================
+
+# =====================================================
+# BIT ANALYSIS
+# =====================================================
+
+st.markdown("---")
+st.header("Bitstream Analysis")
+
+render_bit_comparison(
+    binary,
+    received,
+    decoded
 )
 
 # =====================================================
 
-# OVERVIEW
-
+# TRELLIS
 # =====================================================
-# =====================================================
-# OVERVIEW
+# TRELLIS
 # =====================================================
 
-with tab1:
+st.markdown("---")
+st.header("Trellis Diagram")
 
-    col1, col2 = st.columns(2)
+if show_trellis:
 
-    with col1:
-
-        st.subheader("Input")
-
-        st.write(input_text)
-
-        st.metric(
-            "Input Bits",
-            len(binary)
-        )
-
-        st.metric(
-            "Encoded Bits",
-            len(encoded)
-        )
-
-    with col2:
-
-        st.subheader("Output")
-
-        st.write(recovered_text)
-
-        st.metric(
-            "Channel Errors",
-            channel_errors
-        )
-
-        st.metric(
-            "Remaining Errors",
-            remaining_errors
-        )
-
-# =====================================================
-
-# BIT ANALYSIS
-
-# =====================================================
-
-# =====================================================
-# BIT ANALYSIS
-# =====================================================
-
-with tab2:
-
-    render_bit_comparison(
-        binary,
-        received,
-        decoded
+    render_trellis(
+        decoded_result["trellis_path"]
     )
 
-# =====================================================
+else:
 
-# TRELLIS
-# =====================================================
-# TRELLIS
-# =====================================================
-
-with tab3:
-
-    if show_trellis:
-
-        render_trellis(
-            decoded_result["trellis_path"]
-        )
-
-    else:
-
-        st.info(
-            "Enable Trellis Diagram in controls."
-        )
-
+    st.info(
+        "Enable Trellis Diagram in controls."
+    )
 # =====================================================
 # BER ANALYSIS
 # =====================================================
 
-with tab4:
+st.markdown("---")
+st.header("BER Performance Analysis")
 
-    if show_ber:
+if show_ber:
 
-        with st.spinner(
-            "Running BER analysis..."
-        ):
+    with st.spinner(
+        "Running BER analysis..."
+    ):
 
             snr_values = np.arange(
                 0,
