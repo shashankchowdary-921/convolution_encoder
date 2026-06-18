@@ -22,7 +22,9 @@ render_bit_comparison,
 render_trellis,
 render_ber_plot
 )
-
+from ui.transmission.section import (
+    render_transmission_section
+)
 # =====================================================
 
 # PAGE CONFIG
@@ -122,6 +124,20 @@ errors_corrected = max(
     channel_errors - remaining_errors,
     0
 )
+
+# =====================================================
+# RECOVERY METRICS
+# =====================================================
+
+recovery_efficiency = 100.0
+
+if channel_errors > 0:
+
+    recovery_efficiency = (
+        errors_corrected
+        /
+        channel_errors
+    ) * 100
 # =====================================================
 
 # PIPELINE DATA
@@ -150,15 +166,20 @@ render_pipeline(stage)
 # KPI CARDS
 
 # =====================================================
+# =====================================================
+# TRANSMISSION RESULT
+# =====================================================
 
-render_metrics(
-ber,
-errors_corrected,
-recovered_text,
-snr_db
+render_transmission_section(
+    input_text=input_text,
+    recovered_text=recovered_text,
+    ber=ber,
+    errors_introduced=channel_errors,
+    errors_corrected=errors_corrected,
+    recovery_efficiency=recovery_efficiency
 )
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
 # =====================================================
 
@@ -174,45 +195,7 @@ st.markdown("---")
 # OVERVIEW
 
 # =====================================================
-# =====================================================
-# OVERVIEW
-# =====================================================
-
-
-col1, col2 = st.columns(2)
-
-with col1:
-
-    st.subheader("Input")
-
-    st.write(input_text)
-
-    st.metric(
-        "Input Bits",
-        len(binary)
-    )
-
-    st.metric(
-        "Encoded Bits",
-        len(encoded)
-    )
-
-with col2:
-
-    st.subheader("Output")
-
-    st.write(recovered_text)
-
-    st.metric(
-        "Channel Errors",
-        channel_errors
-    )
-
-    st.metric(
-        "Remaining Errors",
-        remaining_errors
-    )
-# =====================================================
+#============================
 
 # BIT ANALYSIS
 
