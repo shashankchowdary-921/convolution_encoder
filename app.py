@@ -42,7 +42,6 @@ apply_custom_css()
 # CACHE OBJECTS
 
 # =====================================================
-
 @st.cache_resource
 def get_encoder():
 return ConvolutionalEncoder()
