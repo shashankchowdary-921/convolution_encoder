@@ -54,4 +54,4 @@ def apply_custom_css():
 
     </style>
     """, unsafe_allow_html=True)
-```
+
