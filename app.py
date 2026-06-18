@@ -169,23 +169,6 @@ st.markdown("---")
 
 # =====================================================
 
-st.markdown("---")
-st.header("Overview")
-
-# overview content
-
-st.markdown("---")
-st.header("Bitstream Analysis")
-
-# bit comparison
-
-st.markdown("---")
-st.header("Trellis Diagram")
-
-# trellis
-
-st.markdown("---")
-st.header("BER Performance")
 
 # ber plot
 
@@ -197,8 +180,7 @@ st.header("BER Performance")
 # =====================================================
 # OVERVIEW
 # =====================================================
-st.markdown("---")
-st.header("Overview")
+
 
 col1, col2 = st.columns(2)
 
@@ -285,7 +267,63 @@ if show_ber:
         "Running BER analysis..."
     ):
 
-        ...
+        snr_values = np.arange(
+            0,
+            11,
+            0.5
+        )
+
+        ber_values = []
+
+        progress = st.progress(0)
+
+        for idx, snr in enumerate(
+            snr_values
+        ):
+
+            rx_bits, _, _ = channel.transmit(
+                encoded,
+                snr
+            )
+
+            decoded_bits = decoder.decode(
+                rx_bits
+            )
+
+            ber_values.append(
+                calculate_ber(
+                    binary,
+                    decoded_bits
+                )
+            )
+
+            progress.progress(
+                (idx + 1)
+                / len(snr_values)
+            )
+
+        progress.empty()
+
+        def q_function(x):
+
+            return 0.5 * (
+                1 -
+                math.erf(
+                    x / np.sqrt(2)
+                )
+            )
+
+        theoretical_ber = [
+
+            q_function(
+                np.sqrt(
+                    10 ** (snr / 10)
+                )
+            )
+
+            for snr in snr_values
+        ]
+
         render_ber_plot(
             snr_values,
             ber_values,
