@@ -329,4 +329,3 @@ with tab4:
         st.info(
             "Enable BER Analysis in the sidebar."
         )
-```
