@@ -186,7 +186,7 @@ tab1, tab2, tab3, tab4 = st.tabs(
 
 with tab1:
 
-```
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -220,7 +220,7 @@ with col2:
         "Remaining Errors",
         remaining_errors
     )
-```
+
 
 # =====================================================
 
@@ -230,13 +230,13 @@ with col2:
 
 with tab2:
 
-```
+
 render_bit_comparison(
     binary,
     received,
     decoded
 )
-```
+
 
 # =====================================================
 
@@ -246,7 +246,7 @@ render_bit_comparison(
 
 with tab3:
 
-```
+
 if show_trellis:
 
     render_trellis(
@@ -258,7 +258,7 @@ else:
     st.info(
         "Enable Trellis Diagram in controls."
     )
-```
+
 
 # =====================================================
 
@@ -268,7 +268,7 @@ else:
 
 with tab4:
 
-```
+
 if show_ber:
 
     with st.spinner(
@@ -343,4 +343,4 @@ else:
     st.info(
         "Enable BER Analysis in controls."
     )
-```
+
