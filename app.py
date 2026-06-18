@@ -183,44 +183,45 @@ tab1, tab2, tab3, tab4 = st.tabs(
 # OVERVIEW
 
 # =====================================================
+# =====================================================
+# OVERVIEW
+# =====================================================
 
 with tab1:
 
+    col1, col2 = st.columns(2)
 
-col1, col2 = st.columns(2)
+    with col1:
 
-with col1:
+        st.subheader("Input")
 
-    st.subheader("Input")
+        st.write(input_text)
 
-    st.write(input_text)
+        st.metric(
+            "Input Bits",
+            len(binary)
+        )
 
-    st.metric(
-        "Input Bits",
-        len(binary)
-    )
+        st.metric(
+            "Encoded Bits",
+            len(encoded)
+        )
 
-    st.metric(
-        "Encoded Bits",
-        len(encoded)
-    )
+    with col2:
 
-with col2:
+        st.subheader("Output")
 
-    st.subheader("Output")
+        st.write(recovered_text)
 
-    st.write(recovered_text)
+        st.metric(
+            "Channel Errors",
+            channel_errors
+        )
 
-    st.metric(
-        "Channel Errors",
-        channel_errors
-    )
-
-    st.metric(
-        "Remaining Errors",
-        remaining_errors
-    )
-
+        st.metric(
+            "Remaining Errors",
+            remaining_errors
+        )
 
 # =====================================================
 
