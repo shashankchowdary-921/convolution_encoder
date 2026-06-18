@@ -192,20 +192,20 @@ def render_sidebar():
     with st.sidebar:
         st.markdown("### Message")
         input_text = st.text_area(
-            "",
+            label="Message",
             value="Hello World",
             max_chars=200,
-            label_visibility="collapsed"
+            label_visibility="hidden"   # label is non‑empty but hidden
         )
 
         st.markdown("### Signal-to-Noise Ratio")
         snr_db = st.slider(
-            "",
+            label="SNR (dB)",
             min_value=0.0,
             max_value=15.0,
             value=5.0,
             step=0.5,
-            label_visibility="collapsed"
+            label_visibility="hidden"
         )
 
         run = st.button("Run Simulation", type="primary", use_container_width=True)
@@ -371,9 +371,9 @@ def render_trellis(trellis_path, state_labels=['00','01','10','11']):
         name='Survivor Path'
     ))
 
-    # Fixed: use integer weight (600) or remove weight key
+    # Clean layout – no weight string
     fig.update_layout(
-        title=None,  # No title to keep it clean
+        title=None,
         xaxis=dict(
             showgrid=False,
             zeroline=False,
