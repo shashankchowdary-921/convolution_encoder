@@ -1,4 +1,3 @@
-
 import streamlit as st
 import numpy as np
 import math
@@ -6,153 +5,345 @@ import math
 from core.encoder import ConvolutionalEncoder
 from core.decoder import ViterbiDecoder
 from core.channel import AWGNChannel
-from core.utils import text_to_bits, bits_to_text, calculate_ber
-
-from core.ui import (
-    apply_custom_css,
-    render_sidebar,
-    render_header,
-    render_pipeline,
-    render_summary,
-    render_bitstream,
-    render_trellis,
-    render_ber_plot
+from core.utils import (
+text_to_bits,
+bits_to_text,
+calculate_ber
 )
 
+from ui import (
+apply_custom_css,
+render_header,
+render_control_panel,
+render_pipeline,
+render_metrics,
+render_bitstream,
+render_bit_comparison,
+render_trellis,
+render_ber_plot
+)
+
+# =====================================================
+
+# PAGE CONFIG
+
+# =====================================================
+
 st.set_page_config(
-    page_title="Convolutional Encoder & Viterbi Decoder",
-    page_icon="",
-    layout="wide",
-    initial_sidebar_state="expanded"
+page_title="Convolutional Encoder & Viterbi Decoder",
+page_icon="📡",
+layout="wide"
 )
 
 apply_custom_css()
 
-# ─── Session state for simulation results ──────────────────────────────
+# =====================================================
 
-if 'results' not in st.session_state:
-    st.session_state.results = {}
+# CACHE OBJECTS
 
-# ─── Sidebar ─────────────────────────────────────────────────────────────
+# =====================================================
 
-input_text, snr_db, run_clicked, show_trellis, show_ber = render_sidebar()
+@st.cache_resource
+def get_encoder():
+return ConvolutionalEncoder()
 
-# ─── Main header ────────────────────────────────────────────────────────
+@st.cache_resource
+def get_decoder():
+return ViterbiDecoder()
+
+@st.cache_resource
+def get_channel():
+return AWGNChannel()
+
+encoder = get_encoder()
+decoder = get_decoder()
+channel = get_channel()
+
+# =====================================================
+
+# HEADER
+
+# =====================================================
 
 render_header()
 
-# ─── Run simulation only when button is pressed ────────────────────────
+# =====================================================
 
-if run_clicked:
-    # Encode
-    binary = text_to_bits(input_text)
-    encoder = ConvolutionalEncoder()
-    encoded = encoder.encode(binary)
+# CONTROLS
 
-    # Channel
-    channel = AWGNChannel()
-    received, _, _ = channel.transmit(encoded, snr_db)
+# =====================================================
 
-    # Decode
-    decoder = ViterbiDecoder()
-    decoded_result = decoder.decode_with_trellis(received)
-    decoded = decoded_result['output']
-    recovered_text = bits_to_text(decoded) if decoded else "(decoding failed)"
+(
+input_text,
+snr_db,
+run_clicked,
+show_trellis,
+show_ber
+) = render_control_panel()
 
-    # BER
-    ber = calculate_ber(binary, decoded) if binary and decoded else 1.0
-    flipped_indices = [i for i, (a,b) in enumerate(zip(encoded, received)) if a != b]
-    error_indices = [i for i, (a,b) in enumerate(zip(binary, decoded)) if a != b]
-    errors_corrected = len(error_indices)
+if not run_clicked:
+st.info("Enter a message and click Run Simulation.")
+st.stop()
 
-    # Store
-    st.session_state.results = {
-        'input_text': input_text,
-        'binary': binary,
-        'encoded': encoded,
-        'received': received,
-        'decoded': decoded,
-        'recovered_text': recovered_text,
-        'ber': ber,
-        'snr': snr_db,
-        'trellis_path': decoded_result['trellis_path'],
-        'flipped_indices': flipped_indices,
-        'error_indices': error_indices,
-        'errors_corrected': errors_corrected
-    }
-    if not run_clicked:
-        st.info("Enter a message and click Run Simulation.")
-        st.stop()
-# ─── Display results if available ──────────────────────────────────────
+# =====================================================
 
-results = st.session_state.results
+# PROCESSING
 
-if results:
-    # Pipeline
-    stage = {
-        "text": results['input_text'],
-        "binary": results['binary'][:20] + "…" if len(results['binary'])>20 else results['binary'],
-        "encoded": results['encoded'][:20] + "…" if len(results['encoded'])>20 else results['encoded'],
-        "snr": results['snr'],
-        "decoded": results['decoded'][:20] + "…" if len(results['decoded'])>20 else results['decoded'],
-        "recovered": results['recovered_text']
-    }
-    render_pipeline(stage)
+# =====================================================
 
-    # Summary cards
-    render_summary(
-        results['input_text'],
-        results['recovered_text'],
-        results['ber'],
-        results['errors_corrected'],
-        results['snr']
+binary = text_to_bits(input_text)
+
+encoded = encoder.encode(binary)
+
+received, tx_symbols, rx_symbols = channel.transmit(
+encoded,
+snr_db
+)
+
+channel_errors = sum(
+1
+for a, b in zip(encoded, received)
+if a != b
+)
+
+decoded_result = decoder.decode_with_trellis(received)
+
+decoded = decoded_result["output"]
+
+recovered_text = bits_to_text(decoded)
+
+ber = calculate_ber(
+binary,
+decoded
+)
+
+remaining_errors = sum(
+1
+for a, b in zip(binary, decoded)
+if a != b
+)
+
+errors_corrected = max(
+channel_errors - remaining_errors,
+0
+)
+
+# =====================================================
+
+# PIPELINE DATA
+
+# =====================================================
+
+stage = {
+"text": input_text,
+"binary": f"{len(binary)} bits",
+"encoded": f"{len(encoded)} bits",
+"snr": round(snr_db, 1),
+"decoded": f"{len(decoded)} bits",
+"recovered": recovered_text
+}
+
+# =====================================================
+
+# PIPELINE
+
+# =====================================================
+
+render_pipeline(stage)
+
+# =====================================================
+
+# KPI CARDS
+
+# =====================================================
+
+render_metrics(
+ber,
+errors_corrected,
+recovered_text,
+snr_db
+)
+
+st.markdown("---")
+
+# =====================================================
+
+# TABS
+
+# =====================================================
+
+tab1, tab2, tab3, tab4 = st.tabs(
+[
+"Overview",
+"Bit Analysis",
+"Trellis Diagram",
+"BER Analysis"
+]
+)
+
+# =====================================================
+
+# OVERVIEW
+
+# =====================================================
+
+with tab1:
+
+```
+col1, col2 = st.columns(2)
+
+with col1:
+
+    st.subheader("Input")
+
+    st.write(input_text)
+
+    st.metric(
+        "Input Bits",
+        len(binary)
     )
 
-    # Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Bit Analysis", "Trellis", "BER Performance"])
+    st.metric(
+        "Encoded Bits",
+        len(encoded)
+    )
 
-    with tab1:
-        render_overview_tab(stage)
+with col2:
 
-    with tab2:
-        render_bit_analysis(
-            results['binary'],
-            results['received'],
-            results['decoded'],
-            results['flipped_indices'],
-            results['error_indices']
-        )
+    st.subheader("Output")
 
-    with tab3:
-        if show_trellis and results['trellis_path']:
-            render_trellis(results['trellis_path'])
-        else:
-            st.info("Trellis diagram disabled or not available.")
+    st.write(recovered_text)
 
-    with tab4:
-        if show_ber:
-            with st.spinner("Computing BER curve..."):
-                snr_range = np.arange(0, 12, 0.5)
-                ber_vals = []
-                enc = ConvolutionalEncoder()
-                dec = ViterbiDecoder()
-                ch = AWGNChannel()
-                bitstream = text_to_bits(results['input_text'])
-                codeword = enc.encode(bitstream)
-                for snr in snr_range:
-                    rx, _, _ = ch.transmit(codeword, snr)
-                    try:
-                        dec_out = dec.decode(rx)
-                        ber_vals.append(calculate_ber(bitstream, dec_out))
-                    except:
-                        ber_vals.append(1.0)
-                def q_func(x):
-                    return 0.5 * (1 - math.erf(x / math.sqrt(2)))
-                theo = [q_func(np.sqrt(10**(snr/10))) for snr in snr_range]
-                render_ber_plot(snr_range, ber_vals, theo)
-        else:
-            st.info("BER plot disabled.")
+    st.metric(
+        "Channel Errors",
+        channel_errors
+    )
+
+    st.metric(
+        "Remaining Errors",
+        remaining_errors
+    )
+```
+
+# =====================================================
+
+# BIT ANALYSIS
+
+# =====================================================
+
+with tab2:
+
+```
+render_bit_comparison(
+    binary,
+    received,
+    decoded
+)
+```
+
+# =====================================================
+
+# TRELLIS
+
+# =====================================================
+
+with tab3:
+
+```
+if show_trellis:
+
+    render_trellis(
+        decoded_result["trellis_path"]
+    )
 
 else:
-    st.info("Adjust parameters and click **Run Simulation** to see results.")
-    
+
+    st.info(
+        "Enable Trellis Diagram in controls."
+    )
+```
+
+# =====================================================
+
+# BER ANALYSIS
+
+# =====================================================
+
+with tab4:
+
+```
+if show_ber:
+
+    with st.spinner(
+        "Running BER analysis..."
+    ):
+
+        snr_values = np.arange(
+            0,
+            11,
+            0.5
+        )
+
+        ber_values = []
+
+        progress = st.progress(0)
+
+        for idx, snr in enumerate(
+            snr_values
+        ):
+
+            rx_bits, _, _ = channel.transmit(
+                encoded,
+                snr
+            )
+
+            decoded_bits = decoder.decode(
+                rx_bits
+            )
+
+            ber_values.append(
+                calculate_ber(
+                    binary,
+                    decoded_bits
+                )
+            )
+
+            progress.progress(
+                (idx + 1)
+                / len(snr_values)
+            )
+
+        progress.empty()
+
+        def q_function(x):
+
+            return 0.5 * (
+                1 -
+                math.erf(
+                    x / np.sqrt(2)
+                )
+            )
+
+        theoretical_ber = [
+
+            q_function(
+                np.sqrt(
+                    10 ** (snr / 10)
+                )
+            )
+
+            for snr in snr_values
+        ]
+
+        render_ber_plot(
+            snr_values,
+            ber_values,
+            theoretical_ber
+        )
+
+else:
+
+    st.info(
+        "Enable BER Analysis in controls."
+    )
+```
