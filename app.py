@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
 
-# Import core modules
 from core.encoder import ConvolutionalEncoder
 from core.decoder import ViterbiDecoder
 from core.channel import AWGNChannel
@@ -52,7 +51,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# Initialize Components
+# Initialize Components (cached for performance)
 # ============================================================================
 @st.cache_resource
 def get_encoder():
@@ -102,18 +101,18 @@ with st.sidebar:
 st.markdown('<p class="main-header">🔐 Convolutional Encoder & Viterbi Decoder</p>', unsafe_allow_html=True)
 st.markdown("*Interactive demonstration of forward error correction for digital communication*")
 
-# ============================================================================
-# Step 1: Text to Binary
-# ============================================================================
+# -------------------------------------------------------------------------
+# Step 1: Text → Binary
+# -------------------------------------------------------------------------
 st.markdown('<p class="section-header">📝 Step 1: Text → Binary</p>', unsafe_allow_html=True)
 
 binary = text_to_bits(input_text)
 st.markdown(f'<div class="bit-display">{binary}</div>', unsafe_allow_html=True)
 st.caption(f"Length: {len(binary)} bits ({len(input_text)} characters × 8 bits)")
 
-# ============================================================================
+# -------------------------------------------------------------------------
 # Step 2: Convolutional Encoding
-# ============================================================================
+# -------------------------------------------------------------------------
 st.markdown('<p class="section-header">⚙️ Step 2: Convolutional Encoding</p>', unsafe_allow_html=True)
 
 with st.spinner("Encoding..."):
@@ -130,9 +129,9 @@ with col2:
 with col3:
     st.metric("Generator Polynomials", "G₁=111, G₂=101")
 
-# ============================================================================
+# -------------------------------------------------------------------------
 # Step 3: AWGN Channel
-# ============================================================================
+# -------------------------------------------------------------------------
 st.markdown('<p class="section-header">📡 Step 3: AWGN Channel</p>', unsafe_allow_html=True)
 
 with st.spinner(f"Adding AWGN noise at SNR = {snr_db} dB..."):
@@ -150,9 +149,9 @@ with col3:
 
 st.markdown(f'<div class="bit-display">Received: {received}</div>', unsafe_allow_html=True)
 
-# ============================================================================
+# -------------------------------------------------------------------------
 # Step 4: Viterbi Decoding
-# ============================================================================
+# -------------------------------------------------------------------------
 st.markdown('<p class="section-header">🔍 Step 4: Viterbi Decoding</p>', unsafe_allow_html=True)
 
 with st.spinner("Decoding with Viterbi algorithm..."):
@@ -165,9 +164,9 @@ with st.spinner("Decoding with Viterbi algorithm..."):
 
 st.markdown(f'<div class="bit-display">{decoded}</div>', unsafe_allow_html=True)
 
-# ============================================================================
+# -------------------------------------------------------------------------
 # Step 5: Results
-# ============================================================================
+# -------------------------------------------------------------------------
 st.markdown('<p class="section-header">✅ Step 5: Results</p>', unsafe_allow_html=True)
 
 recovered_text = bits_to_text(decoded) if decoded else "(decoding failed)"
@@ -184,9 +183,9 @@ with col3:
     else:
         st.warning("⚠️ Some errors remain")
 
-# ============================================================================
-# Trellis Visualization
-# ============================================================================
+# -------------------------------------------------------------------------
+# Bonus: Trellis Diagram
+# -------------------------------------------------------------------------
 if show_trellis and 'decoded_result' in locals() and decoded_result:
     st.markdown('<p class="section-header">🔱 Trellis Diagram</p>', unsafe_allow_html=True)
     
@@ -196,7 +195,7 @@ if show_trellis and 'decoded_result' in locals() and decoded_result:
     if trellis_path:
         fig = go.Figure()
         
-        # Draw states
+        # Draw state circles
         num_steps = len(trellis_path) + 1
         for step in range(num_steps):
             for state in range(4):
@@ -252,9 +251,9 @@ if show_trellis and 'decoded_result' in locals() and decoded_result:
         
         st.plotly_chart(fig, use_container_width=True)
 
-# ============================================================================
-# BER vs SNR Plot
-# ============================================================================
+# -------------------------------------------------------------------------
+# Bonus: BER vs SNR Plot
+# -------------------------------------------------------------------------
 if show_ber_plot:
     st.markdown('<p class="section-header">📊 BER Performance</p>', unsafe_allow_html=True)
     
