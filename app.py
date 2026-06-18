@@ -100,7 +100,7 @@ if results:
         "decoded": results['decoded'][:20] + "…" if len(results['decoded'])>20 else results['decoded'],
         "recovered": results['recovered_text']
     }
-    render_pipeline(stage, snr=results['snr'])
+    render_pipeline(stage)
 
     # Summary cards
     render_summary(
@@ -118,7 +118,6 @@ if results:
         render_overview_tab(stage)
 
     with tab2:
-        # Show all bits in grouped form
         render_bit_analysis(
             results['binary'],
             results['received'],
@@ -135,16 +134,12 @@ if results:
 
     with tab4:
         if show_ber:
-            # Recompute BER for a range of SNRs using the current message
-            # This could be cached for performance, but we'll compute on the fly.
             with st.spinner("Computing BER curve..."):
                 snr_range = np.arange(0, 12, 0.5)
                 ber_vals = []
-                # Reuse encoder, decoder, channel
                 enc = ConvolutionalEncoder()
                 dec = ViterbiDecoder()
                 ch = AWGNChannel()
-                # Encode once
                 bitstream = text_to_bits(results['input_text'])
                 codeword = enc.encode(bitstream)
                 for snr in snr_range:
@@ -154,7 +149,6 @@ if results:
                         ber_vals.append(calculate_ber(bitstream, dec_out))
                     except:
                         ber_vals.append(1.0)
-                # Theoretical
                 def q_func(x):
                     return 0.5 * (1 - math.erf(x / math.sqrt(2)))
                 theo = [q_func(np.sqrt(10**(snr/10))) for snr in snr_range]
