@@ -32,18 +32,14 @@ def render_control_panel():
             value=True
         )
 
-    run_clicked = st.button(
-        "Run Simulation",
-        type="primary",
-        width="stretch"
-    )
+
 
     st.divider()
+
 
     return (
         input_text,
         snr_db,
-        run_clicked,
         show_trellis,
         show_ber
     )
