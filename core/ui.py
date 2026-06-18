@@ -1,336 +1,333 @@
-# core/ui.py
+```python
+# app.py
 
 import streamlit as st
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
+import numpy as np
+import math
 
+from core.encoder import ConvolutionalEncoder
+from core.decoder import ViterbiDecoder
+from core.channel import AWGNChannel
+from core.utils import (
+    text_to_bits,
+    bits_to_text,
+    calculate_ber
+)
+
+from core.ui import (
+    apply_custom_css,
+    render_sidebar,
+    render_header,
+    render_pipeline,
+    render_summary,
+    render_bitstream,
+    render_trellis,
+    render_ber_plot
+)
 
 # ============================================================
-# CSS
+# PAGE CONFIG
 # ============================================================
 
-def apply_custom_css():
-    st.markdown("""
-    <style>
+st.set_page_config(
+    page_title="Convolutional Encoder & Viterbi Decoder",
+    page_icon="📡",
+    layout="wide"
+)
 
-    .stApp {
-        background-color: #F8F7F4;
-    }
+apply_custom_css()
 
-    .block-container {
-        max-width: 1200px;
-        padding-top: 2rem;
-    }
+# ============================================================
+# CACHE OBJECTS
+# ============================================================
 
-    h1,h2,h3,h4 {
-        color: #111111;
-    }
+@st.cache_resource
+def get_encoder():
+    return ConvolutionalEncoder()
 
-    .pipeline-container {
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        gap:12px;
-        flex-wrap:wrap;
-        padding:20px;
-        margin-bottom:20px;
-    }
+@st.cache_resource
+def get_decoder():
+    return ViterbiDecoder()
 
-    .pipeline-box {
-        background:white;
-        border:1px solid #E5E7EB;
-        border-radius:12px;
-        padding:16px;
-        min-width:140px;
-        text-align:center;
-        font-weight:600;
-    }
+@st.cache_resource
+def get_channel():
+    return AWGNChannel()
 
-    .pipeline-arrow {
-        font-size:24px;
-        color:#6B7280;
-    }
-
-    .summary-card {
-        background:white;
-        border:1px solid #E5E7EB;
-        border-radius:12px;
-        padding:16px;
-        text-align:center;
-    }
-
-    .summary-label {
-        color:#6B7280;
-        font-size:0.85rem;
-    }
-
-    .summary-value {
-        color:#111111;
-        font-size:1.4rem;
-        font-weight:700;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
+encoder = get_encoder()
+decoder = get_decoder()
+channel = get_channel()
 
 # ============================================================
 # SIDEBAR
 # ============================================================
 
-def render_sidebar():
-
-    with st.sidebar:
-
-        st.title("Simulation")
-
-        input_text = st.text_area(
-            "Input Message",
-            value="Hello World",
-            label_visibility="collapsed"
-        )
-
-        snr_db = st.slider(
-            "Signal To Noise Ratio",
-            min_value=0.0,
-            max_value=15.0,
-            value=5.0,
-            step=0.5,
-            label_visibility="collapsed"
-        )
-
-        run_clicked = st.button(
-            "Run Simulation",
-            use_container_width=True
-        )
-
-        st.divider()
-
-        show_trellis = st.checkbox(
-            "Show Trellis",
-            value=True
-        )
-
-        show_ber = st.checkbox(
-            "Show BER Analysis",
-            value=True
-        )
-
-    return (
-        input_text,
-        snr_db,
-        run_clicked,
-        show_trellis,
-        show_ber
-    )
-
+(
+    input_text,
+    snr_db,
+    run_clicked,
+    show_trellis,
+    show_ber_plot
+) = render_sidebar()
 
 # ============================================================
 # HEADER
 # ============================================================
 
-def render_header():
+render_header()
 
-    st.title("Convolutional Encoder & Viterbi Decoder")
+if not run_clicked:
+    st.info("Enter a message and click Run Simulation.")
+    st.stop()
 
-    st.caption(
-        "Interactive demonstration of forward error correction using "
-        "rate-1/2 convolutional coding and Viterbi decoding."
-    )
+# ============================================================
+# PROCESSING
+# ============================================================
 
+binary = text_to_bits(input_text)
+
+encoded = encoder.encode(binary)
+
+received, tx_symbols, rx_symbols = channel.transmit(
+    encoded,
+    snr_db
+)
+
+channel_errors = sum(
+    1
+    for a, b in zip(encoded, received)
+    if a != b
+)
+
+decoded_result = decoder.decode_with_trellis(received)
+
+decoded = decoded_result["output"]
+
+recovered_text = bits_to_text(decoded)
+
+ber = calculate_ber(binary, decoded)
+
+remaining_errors = sum(
+    1
+    for a, b in zip(binary, decoded)
+    if a != b
+)
+
+errors_corrected = max(
+    channel_errors - remaining_errors,
+    0
+)
+
+# ============================================================
+# PIPELINE DATA
+# ============================================================
+
+stage = {
+    "text": input_text,
+    "binary": f"{len(binary)} bits",
+    "encoded": f"{len(encoded)} bits",
+    "snr": round(snr_db, 1),
+    "decoded": f"{len(decoded)} bits",
+    "recovered": recovered_text
+}
 
 # ============================================================
 # PIPELINE
 # ============================================================
 
-def render_pipeline(stage):
-
-    html = """
-    <div class='pipeline-container'>
-    """
-
-    steps = [
-        ("Text", stage["text"]),
-        ("Binary", stage["binary"]),
-        ("Encoder", stage["encoded"]),
-        ("AWGN", f"{stage['snr']} dB"),
-        ("Decoder", stage["decoded"]),
-        ("Output", stage["recovered"])
-    ]
-
-    for i, (name, value) in enumerate(steps):
-
-        html += f"""
-        <div class='pipeline-box'>
-            <div>{name}</div>
-            <small>{value}</small>
-        </div>
-        """
-
-        if i != len(steps)-1:
-            html += "<div class='pipeline-arrow'>→</div>"
-
-    html += "</div>"
-
-    st.markdown(html, unsafe_allow_html=True)
-
+render_pipeline(stage)
 
 # ============================================================
 # SUMMARY
 # ============================================================
 
-def render_summary(
-    original_text,
+render_summary(
+    input_text,
     recovered_text,
     ber,
     errors_corrected,
     snr_db
-):
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-        st.markdown(f"""
-        <div class='summary-card'>
-            <div class='summary-label'>Original</div>
-            <div class='summary-value'>{original_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c2:
-        st.markdown(f"""
-        <div class='summary-card'>
-            <div class='summary-label'>Recovered</div>
-            <div class='summary-value'>{recovered_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c3:
-        st.markdown(f"""
-        <div class='summary-card'>
-            <div class='summary-label'>BER</div>
-            <div class='summary-value'>{ber:.6f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c4:
-        st.markdown(f"""
-        <div class='summary-card'>
-            <div class='summary-label'>Errors Corrected</div>
-            <div class='summary-value'>{errors_corrected}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
+)
 
 # ============================================================
-# BITSTREAM
+# TABS
 # ============================================================
 
-def render_bitstream(bits, title):
-
-    grouped = " ".join(
-        bits[i:i+8]
-        for i in range(0, len(bits), 8)
-    )
-
-    st.subheader(title)
-
-    st.code(
-        grouped,
-        language="text"
-    )
-
+tab1, tab2, tab3, tab4 = st.tabs(
+    [
+        "Overview",
+        "Bit Analysis",
+        "Trellis Diagram",
+        "BER Analysis"
+    ]
+)
 
 # ============================================================
-# TRELLIS
+# OVERVIEW TAB
 # ============================================================
 
-def render_trellis(
-    trellis_path,
-    state_labels=["00","01","10","11"]
-):
+with tab1:
 
-    if not trellis_path:
-        st.info("No trellis path available.")
-        return
+    st.subheader("Transmission Summary")
 
-    fig = go.Figure()
+    col1, col2 = st.columns(2)
 
-    path_x = []
-    path_y = []
+    with col1:
 
-    for i, step in enumerate(trellis_path):
-
-        path_x.extend([i, i+1, None])
-
-        path_y.extend([
-            step["from_state"],
-            step["to_state"],
-            None
-        ])
-
-    fig.add_trace(
-        go.Scatter(
-            x=path_x,
-            y=path_y,
-            mode="lines+markers",
-            line=dict(width=3),
-            marker=dict(size=10),
-            name="Survivor Path"
-        )
-    )
-
-    fig.update_layout(
-        height=500,
-        template="plotly_white",
-        xaxis_title="Time Step",
-        yaxis_title="State",
-        yaxis=dict(
-            tickvals=[0,1,2,3],
-            ticktext=state_labels
-        )
-    )
-
-    st.plotly_chart(
-        fig,
-        use_container_width=True
-    )
-
-
-# ============================================================
-# BER PLOT
-# ============================================================
-
-def render_ber_plot(
-    snr_values,
-    ber_values,
-    theoretical_ber=None
-):
-
-    fig, ax = plt.subplots(
-        figsize=(8,4)
-    )
-
-    ax.semilogy(
-        snr_values,
-        ber_values,
-        marker="o",
-        label="Simulated"
-    )
-
-    if theoretical_ber is not None:
-
-        ax.semilogy(
-            snr_values,
-            theoretical_ber,
-            "--",
-            label="Theoretical"
+        st.metric(
+            "Input Length",
+            len(binary)
         )
 
-    ax.set_xlabel("SNR (dB)")
-    ax.set_ylabel("BER")
-    ax.grid(True)
+        st.metric(
+            "Encoded Length",
+            len(encoded)
+        )
 
-    ax.legend()
+    with col2:
 
-    st.pyplot(fig)
+        st.metric(
+            "Channel Errors",
+            channel_errors
+        )
+
+        st.metric(
+            "Remaining Errors",
+            remaining_errors
+        )
+
+    st.divider()
+
+    st.write("Input Text:")
+    st.code(input_text)
+
+    st.write("Recovered Text:")
+    st.code(recovered_text)
+
+# ============================================================
+# BIT ANALYSIS TAB
+# ============================================================
+
+with tab2:
+
+    render_bitstream(
+        binary,
+        "Original Binary"
+    )
+
+    st.markdown("---")
+
+    render_bitstream(
+        encoded,
+        "Encoded Bitstream"
+    )
+
+    st.markdown("---")
+
+    render_bitstream(
+        received,
+        "Received Through AWGN"
+    )
+
+    st.markdown("---")
+
+    render_bitstream(
+        decoded,
+        "Decoded Bitstream"
+    )
+
+# ============================================================
+# TRELLIS TAB
+# ============================================================
+
+with tab3:
+
+    if show_trellis:
+
+        render_trellis(
+            decoded_result["trellis_path"]
+        )
+
+    else:
+
+        st.info(
+            "Enable Trellis Diagram in the sidebar."
+        )
+
+# ============================================================
+# BER ANALYSIS TAB
+# ============================================================
+
+with tab4:
+
+    if show_ber_plot:
+
+        with st.spinner(
+            "Running BER analysis..."
+        ):
+
+            snr_values = np.arange(
+                0,
+                11,
+                0.5
+            )
+
+            ber_values = []
+
+            progress = st.progress(0)
+
+            for idx, snr in enumerate(
+                snr_values
+            ):
+
+                rx_bits, _, _ = channel.transmit(
+                    encoded,
+                    snr
+                )
+
+                decoded_bits = decoder.decode(
+                    rx_bits
+                )
+
+                ber_values.append(
+                    calculate_ber(
+                        binary,
+                        decoded_bits
+                    )
+                )
+
+                progress.progress(
+                    (idx + 1)
+                    / len(snr_values)
+                )
+
+            progress.empty()
+
+            def q_function(x):
+                return 0.5 * (
+                    1
+                    - math.erf(
+                        x / np.sqrt(2)
+                    )
+                )
+
+            theoretical_ber = [
+                q_function(
+                    np.sqrt(
+                        10 ** (snr / 10)
+                    )
+                )
+                for snr in snr_values
+            ]
+
+            render_ber_plot(
+                snr_values,
+                ber_values,
+                theoretical_ber
+            )
+
+    else:
+
+        st.info(
+            "Enable BER Analysis in the sidebar."
+        )
+```
