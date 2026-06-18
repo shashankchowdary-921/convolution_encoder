@@ -80,9 +80,7 @@ render_header()
     show_ber
 ) = render_control_panel()
 
-if not run_clicked:
-    st.info("Enter a message and click Run Simulation.")
-    st.stop()
+
 
 # =====================================================
 # PROCESSING
