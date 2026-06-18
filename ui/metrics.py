@@ -38,4 +38,3 @@ def render_metrics(
                 """,
                 unsafe_allow_html=True
             )
-```
