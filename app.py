@@ -270,7 +270,7 @@ if show_ber_plot:
                 ber_values.append(1.0)
         
         def q_function(x):
-            return 0.5 * (1 - np.math.erf(x / np.sqrt(2)))
+            return 0.5 * (1 - math.erf(x / np.sqrt(2)))
         
         theoretical_ber = [q_function(np.sqrt(10 ** (snr/10))) for snr in snr_values]
         
