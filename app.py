@@ -96,7 +96,7 @@ stage = {
 render_pipeline_section(stage)
 
 render_transmission_section(
-    input_text=input_text,
+    input_text, snr_db, code_rate, show_trellis, show_ber = render_control_panel()
     recovered_text=recovered_text,
     ber=ber,
     errors_introduced=channel_errors,
