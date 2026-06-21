@@ -20,8 +20,7 @@ def render_diff_html(reference, target):
     """
     spans = []
     for i, bit in enumerate(target):
-        ref_bit = reference[i] if i < len(reference) else None
-        mismatch = ref_bit is not None and bit != ref_bit
+    ref_bit = reference[i] if i < len(reference) else None    mismatch = ref_bit is not None and bit != ref_bit
         if mismatch:
             spans.append(
                 f'<span style="color:#ffffff; background:#d92626; '
