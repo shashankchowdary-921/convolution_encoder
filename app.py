@@ -126,6 +126,8 @@ decoded_result = decoder.decode_with_trellis(received)
 
 decoded_raw = decoded_result["output"]
 
+st.write(len(binary), len(decoded_raw))
+
 decoded = decoded_raw[:-2]
 
 recovered_text = bits_to_text(decoded)
