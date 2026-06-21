@@ -2,9 +2,9 @@ class ConvolutionalEncoder:
     """Rate-1/2, K=3 convolutional encoder with G1=111, G2=101."""
 
     def __init__(self):
-        self.reg = [0, 0, 0]          # shift register [x[n], x[n-1], x[n-2]]
-        self.g1_taps = [0, 1, 2]      # 111
-        self.g2_taps = [0, 2]         # 101
+        self.reg = [0, 0, 0]
+        self.g1_taps = [0, 1, 2]
+        self.g2_taps = [0, 2]
 
     def reset(self):
         self.reg = [0, 0, 0]
@@ -21,12 +21,6 @@ class ConvolutionalEncoder:
         return result
 
     def encode(self, bits: str, terminate: bool = True) -> str:
-        """
-        Encode a binary string, returns double-length codeword.
-        If terminate=True, appends (K-1)=2 zero flush bits so the
-        shift register returns to the all-zero state at the end,
-        giving Viterbi a known terminal state to trace back from.
-        """
         self.reset()
         if terminate:
             bits = bits + '0' * 2
@@ -37,4 +31,17 @@ class ConvolutionalEncoder:
             out2 = self._compute_output(self.g2_taps)
             output.append(str(out1))
             output.append(str(out2))
+        return ''.join(output)
+
+    def encode_punctured(self, bits: str, terminate: bool = True) -> str:
+        """
+        Rate 2/3 via puncturing pattern [1,1,1,0] applied to rate-1/2 output.
+        Every 4 bits of rate-1/2 output, drop the 4th bit.
+        Output rate: 3 bits per 2 input bits.
+        """
+        rate_half = self.encode(bits, terminate=terminate)
+        output = []
+        for i, bit in enumerate(rate_half):
+            if (i % 4) != 3:
+                output.append(bit)
         return ''.join(output)
