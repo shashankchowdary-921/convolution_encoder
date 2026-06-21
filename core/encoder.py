@@ -20,9 +20,16 @@ class ConvolutionalEncoder:
             result ^= self.reg[tap]
         return result
     
-    def encode(self, bits: str) -> str:
-        """Encode a binary string, returns double-length codeword."""
+def encode(self, bits: str, terminate: bool = True) -> str:
+        """
+        Encode a binary string, returns double-length codeword.
+        If terminate=True, appends (K-1)=2 zero flush bits so the
+        shift register returns to the all-zero state at the end,
+        giving Viterbi a known terminal state to trace back from.
+        """
         self.reset()
+        if terminate:
+            bits = bits + '0' * 2
         output = []
         for bit in bits:
             self._shift(int(bit))
