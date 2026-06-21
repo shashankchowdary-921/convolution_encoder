@@ -2,19 +2,13 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def find_coding_gain(snr_values, ber_values, theoretical_ber):
-    """
-    Find the SNR gap between simulated and theoretical curves,
-    measured at a BER level with genuine (non-floored) statistics —
-    not at the floor edge, where a single bit error vs zero errors
-    is the difference between two trial outcomes, not a stable estimate.
-    """
     snr_values = np.array(snr_values)
     ber_values = np.array(ber_values)
     theoretical_ber = np.array(theoretical_ber)
 
     ber_floor = 1e-4
-    # Require comfortably above the floor — real, resolved statistics
     valid = ber_values > ber_floor * 3
 
     if not np.any(valid):
@@ -41,14 +35,10 @@ def render_ber_plot(
     num_trials=None,
     snr_step=None
 ):
-    fig, ax = plt.subplots(
-        figsize=(8, 4)
-    )
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     ber_floor = 1e-4
-    ber_plot_values = [
-        max(b, ber_floor) for b in ber_values
-    ]
+    ber_plot_values = [max(b, ber_floor) for b in ber_values]
 
     ax.semilogy(
         snr_values,
@@ -65,9 +55,7 @@ def render_ber_plot(
             label="Theoretical (Uncoded BPSK)"
         )
 
-        gain_result = find_coding_gain(
-            snr_values, ber_values, theoretical_ber
-        )
+        gain_result = find_coding_gain(snr_values, ber_values, theoretical_ber)
         if gain_result is not None:
             gain_db, target_ber, sim_snr, theory_snr = gain_result
             ax.annotate(
@@ -95,17 +83,21 @@ def render_ber_plot(
             f"AWGN trials, SNR swept in {snr_step} dB steps. Codeword "
             f"terminated (K-1 flush bits) before transmission."
         )
-def render_constellation_plot(tx_symbols: np.ndarray, rx_symbols: np.ndarray, snr_db: float):
+
+
+def render_constellation_plot(
+    tx_symbols: np.ndarray,
+    rx_symbols: np.ndarray,
+    snr_db: float
+):
     fig, ax = plt.subplots(figsize=(5, 5))
 
-    # Received cloud
-jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
+    jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
     ax.scatter(
-            rx_symbols, jitter,
-            alpha=0.3, s=12, color="#94A3B8", label="Received (noisy)"
-        )
+        rx_symbols, jitter,
+        alpha=0.3, s=12, color="#94A3B8", label="Received (noisy)"
+    )
 
-    # Ideal TX points
     for val, label in [(-1, "0"), (1, "1")]:
         ax.scatter(
             val, 0,
@@ -122,7 +114,6 @@ jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
             color="#4F46E5", fontweight="bold"
         )
 
-    # Decision boundary
     ax.axvline(0, color="#E11D48", linestyle="--", linewidth=1.2, label="Decision boundary")
 
     ax.set_xlim(-3, 3)
@@ -137,5 +128,6 @@ jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
     plt.close(fig)
     st.caption(
         "Each dot is one received symbol after AWGN corruption. "
-        "Symbols crossing the decision boundary (x = 0) become bit errors."
+        "Vertical spread is jitter for visibility (BPSK has no quadrature component). "
+        "Symbols crossing x = 0 become bit errors."
     )
