@@ -1,5 +1,17 @@
 import streamlit as st
 
+def render_stage(title, value):
+    st.markdown(
+        f'''
+        <div class="pipeline-stage">
+            <div class="metric-title">{title}</div>
+            <div class="metric-value" style="margin-top:6px;">{value}</div>
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+    
+
 def apply_custom_css():
     st.markdown("""
     <style>
