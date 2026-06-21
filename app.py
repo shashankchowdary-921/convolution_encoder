@@ -18,7 +18,7 @@ from ui import (
 apply_custom_css,
 render_header,
 render_control_panel,
-render_pipeline,
+render_pipeline_section(stage),
 render_metrics,
 render_bitstream,
 render_bit_comparison,
