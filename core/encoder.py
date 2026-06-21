@@ -1,3 +1,6 @@
+import streamlit as st
+
+
 class ConvolutionalEncoder:
     """Rate-1/2, K=3 convolutional encoder with G₁=111, G₂=101."""
 
@@ -21,14 +24,13 @@ class ConvolutionalEncoder:
         return result
 
     def encode(self, bits: str, terminate: bool = True) -> str:
-        st.write("ENCODE CALLED, terminate=", terminate, "len(bits)=", len(bits))
-        print("ENCODE CALLED, terminate =", terminate, "input len =", len(bits))
         """
         Encode a binary string, returns double-length codeword.
         If terminate=True, appends (K-1)=2 zero flush bits so the
         shift register returns to the all-zero state at the end,
         giving Viterbi a known terminal state to trace back from.
         """
+        st.write("ENCODE CALLED — terminate:", terminate, "| input len:", len(bits))
         self.reset()
         if terminate:
             bits = bits + '0' * 2
@@ -40,3 +42,4 @@ class ConvolutionalEncoder:
             output.append(str(out1))
             output.append(str(out2))
         return ''.join(output)
+        
