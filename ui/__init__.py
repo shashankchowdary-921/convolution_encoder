@@ -5,7 +5,7 @@ from .header import render_header
 
 from .control_panel import render_control_panel
 
-from .pipeline import render_pipeline
+from .pipeline.section import render_pipeline_section
 
 from .metrics import render_metrics
 
