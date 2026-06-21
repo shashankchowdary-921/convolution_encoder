@@ -13,12 +13,11 @@ def render_transmission_section(
     recovery_efficiency
 ):
 
-def render_section_header(title, subtitle=""):
-    st.subheader(title)
+    render_section_header(
+        "Transmission Result",
+        "End-to-end communication performance"
+    )
 
-    if subtitle:
-        st.caption(subtitle)
-        
     col1, col2 = st.columns(2)
 
     with col1:
@@ -32,8 +31,6 @@ def render_section_header(title, subtitle=""):
             "Recovered Message",
             recovered_text
         )
-
-    st.markdown("<br>", unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
 
