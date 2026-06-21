@@ -1,59 +1,68 @@
 import streamlit as st
 
-from ui.shared.section_header import render_section_header
-from ui.shared.minor_container import render_minor_container
+from ui.pipeline.stage import render_stage
 
 
-def render_transmission_section(
-    input_text,
-    recovered_text,
-    ber,
-    errors_introduced,
-    errors_corrected,
-    recovery_efficiency
-):
+def render_pipeline_section(stage):
 
-    render_section_header(
-        "Transmission Result",
-        "End-to-end communication performance"
+    st.subheader(
+        "Communication Pipeline"
     )
 
-    col1, col2 = st.columns(2)
+    cols = st.columns(
+        [2,1,2,1,2,1,2,1,2]
+    )
 
-    with col1:
-        render_minor_container(
-            "Input Message",
-            input_text
+    with cols[0]:
+        render_stage(
+            "Binary",
+            stage["binary"]
         )
 
-    with col2:
-        render_minor_container(
-            "Recovered Message",
-            recovered_text
+    with cols[1]:
+        st.markdown(
+            "<h2 style='text-align:center;'>→</h2>",
+            unsafe_allow_html=True
         )
 
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-        render_minor_container(
-            "BER",
-            f"{ber:.6f}"
+    with cols[2]:
+        render_stage(
+            "Encoder",
+            stage["encoded"]
         )
 
-    with c2:
-        render_minor_container(
-            "Errors Introduced",
-            errors_introduced
+    with cols[3]:
+        st.markdown(
+            "<h2 style='text-align:center;'>→</h2>",
+            unsafe_allow_html=True
         )
 
-    with c3:
-        render_minor_container(
-            "Errors Corrected",
-            errors_corrected
+    with cols[4]:
+        render_stage(
+            "AWGN",
+            f'{stage["snr"]} dB'
         )
 
-    with c4:
-        render_minor_container(
-            "Recovery Efficiency",
-            f"{recovery_efficiency:.1f}%"
+    with cols[5]:
+        st.markdown(
+            "<h2 style='text-align:center;'>→</h2>",
+            unsafe_allow_html=True
+        )
+
+    with cols[6]:
+        render_stage(
+            "Decoder",
+            stage["decoded"]
+        )
+
+    with cols[7]:
+        st.markdown(
+            "<h2 style='text-align:center;'>→</h2>",
+            unsafe_allow_html=True
+        )
+
+    with cols[8]:
+        render_stage(
+            "Output",
+            stage["recovered"][:10]
         )
