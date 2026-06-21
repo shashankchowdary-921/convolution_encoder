@@ -1,45 +1,45 @@
 import streamlit as st
 
-def render_metric_box(title, value, accent=False):
-    value_class = "metric-value-accent" if accent else "metric-value"
+def render_stage(title, value):
     st.markdown(
         f'''
         <div class="pipeline-stage">
             <div class="metric-title">{title}</div>
-            <div class="{value_class}" style="margin-top:6px;">{value}</div>
+            <div class="metric-value" style="margin-top:6px;">{value}</div>
         </div>
         ''',
         unsafe_allow_html=True
     )
 
-def render_transmission_section(
-    input_text,
-    recovered_text,
-    ber,
-    errors_introduced,
-    errors_corrected,
-    recovery_efficiency
-):
-    st.subheader("Transmission Result")
+def render_arrow():
+    st.markdown(
+        '<div class="pipeline-arrow">&#8594;</div>',
+        unsafe_allow_html=True
+    )
 
-    col1, col2 = st.columns(2)
-    with col1:
-        render_metric_box("Input Message", input_text)
-    with col2:
-        render_metric_box("Recovered Message", recovered_text)
+def render_pipeline_section(stage):
+    st.subheader("Communication Pipeline")
+    st.caption(
+        "Signal flow through the communication system"
+    )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    cols = st.columns([4, 1, 4, 1, 4, 1, 4, 1, 4])
 
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        render_metric_box("BER", f"{ber:.6f}")
-    with c2:
-        render_metric_box("Errors Introduced", errors_introduced)
-    with c3:
-        render_metric_box("Errors Corrected", errors_corrected)
-    with c4:
-        render_metric_box(
-            "Recovery Efficiency",
-            f"{recovery_efficiency:.1f}%",
-            accent=True
-        )
+    with cols[0]:
+        render_stage("Binary", stage["binary"])
+    with cols[1]:
+        render_arrow()
+    with cols[2]:
+        render_stage("Encoder", stage["encoded"])
+    with cols[3]:
+        render_arrow()
+    with cols[4]:
+        render_stage("AWGN", f'{stage["snr"]} dB')
+    with cols[5]:
+        render_arrow()
+    with cols[6]:
+        render_stage("Decoder", stage["decoded"])
+    with cols[7]:
+        render_arrow()
+    with cols[8]:
+        render_stage("Output", stage["recovered"])
