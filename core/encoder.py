@@ -30,7 +30,7 @@ class ConvolutionalEncoder:
         shift register returns to the all-zero state at the end,
         giving Viterbi a known terminal state to trace back from.
         """
-        st.write("ENCODE CALLED — terminate:", terminate, "| input len:", len(bits))
+
         self.reset()
         if terminate:
             bits = bits + '0' * 2
