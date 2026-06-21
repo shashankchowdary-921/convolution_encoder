@@ -1,6 +1,9 @@
 import streamlit as st
 import numpy as np
 import math
+from ui.pipeline.section import (
+    render_pipeline_section
+)
 
 from core.encoder import ConvolutionalEncoder
 from core.decoder import ViterbiDecoder
