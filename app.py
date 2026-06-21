@@ -325,7 +325,9 @@ if show_ber:
         render_ber_plot(
             snr_values,
             ber_values,
-            theoretical_ber
+            theoretical_ber,
+            num_trials=num_trials,
+            snr_step=0.5
         )
 else:
     st.info(
