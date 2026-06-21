@@ -258,78 +258,65 @@ else:
 # =====================================================
 st.markdown("---")
 st.header("BER Performance Analysis")
-
 if show_ber:
-
     with st.spinner(
         "Running BER analysis..."
     ):
-
         snr_values = np.arange(
             0,
             11,
             0.5
         )
-
         ber_values = []
-
         progress = st.progress(0)
-
+        num_trials = 10
         for idx, snr in enumerate(
             snr_values
         ):
-
-            rx_bits, _, _ = channel.transmit(
-                encoded,
-                snr
-            )
-
-            decoded_bits = decoder.decode(
-                rx_bits
-            )
-
-            ber_values.append(
-                calculate_ber(
-                    binary,
-                    decoded_bits
+            trial_bers = []
+            for _ in range(num_trials):
+                rx_bits, _, _ = channel.transmit(
+                    encoded,
+                    snr
                 )
+                decoded_bits = decoder.decode(
+                    rx_bits
+                )
+                trial_bers.append(
+                    calculate_ber(
+                        binary,
+                        decoded_bits
+                    )
+                )
+            ber_values.append(
+                sum(trial_bers) / num_trials
             )
-
             progress.progress(
                 (idx + 1)
                 / len(snr_values)
             )
-
         progress.empty()
-
         def q_function(x):
-
             return 0.5 * (
                 1 -
                 math.erf(
                     x / np.sqrt(2)
                 )
             )
-
         theoretical_ber = [
-
             q_function(
                 np.sqrt(
                     10 ** (snr / 10)
                 )
             )
-
             for snr in snr_values
         ]
-
         render_ber_plot(
             snr_values,
             ber_values,
             theoretical_ber
         )
-
 else:
-
     st.info(
         "Enable BER Analysis in controls."
     )
