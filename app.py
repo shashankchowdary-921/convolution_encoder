@@ -123,7 +123,9 @@ channel_errors = sum(
 
 decoded_result = decoder.decode_with_trellis(received)
 
-decoded = decoded_result["output"]
+decoded_raw = decoded_result["output"]
+
+decoded = decoded_raw[:-2]
 
 recovered_text = bits_to_text(decoded)
 
@@ -137,12 +139,6 @@ remaining_errors = sum(
     for a, b in zip(binary, decoded)
     if a != b
 )
-
-errors_corrected = max(
-    channel_errors - remaining_errors,
-    0
-)
-
 # =====================================================
 # RECOVERY METRICS
 # =====================================================
