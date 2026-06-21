@@ -95,3 +95,46 @@ def render_ber_plot(
             f"AWGN trials, SNR swept in {snr_step} dB steps. Codeword "
             f"terminated (K-1 flush bits) before transmission."
         )
+def render_constellation_plot(tx_symbols: np.ndarray, rx_symbols: np.ndarray, snr_db: float):
+    fig, ax = plt.subplots(figsize=(5, 5))
+
+    # Received cloud
+    ax.scatter(
+        rx_symbols, np.zeros_like(rx_symbols),
+        alpha=0.3, s=12, color="#94A3B8", label="Received (noisy)"
+    )
+
+    # Ideal TX points
+    for val, label in [(-1, "0"), (1, "1")]:
+        ax.scatter(
+            val, 0,
+            s=120, zorder=5,
+            color="#4F46E5",
+            edgecolors="white",
+            linewidths=1.5
+        )
+        ax.annotate(
+            f"Bit {label}\n({val:+d})",
+            xy=(val, 0),
+            xytext=(val, 0.15),
+            ha="center", fontsize=9,
+            color="#4F46E5", fontweight="bold"
+        )
+
+    # Decision boundary
+    ax.axvline(0, color="#E11D48", linestyle="--", linewidth=1.2, label="Decision boundary")
+
+    ax.set_xlim(-3, 3)
+    ax.set_ylim(-1, 1)
+    ax.set_xlabel("In-phase (I)")
+    ax.set_yticks([])
+    ax.set_title(f"BPSK Constellation — SNR = {snr_db:.1f} dB", fontsize=11)
+    ax.legend(loc="upper right", fontsize=8)
+    ax.grid(True, alpha=0.3)
+
+    st.pyplot(fig)
+    plt.close(fig)
+    st.caption(
+        "Each dot is one received symbol after AWGN corruption. "
+        "Symbols crossing the decision boundary (x = 0) become bit errors."
+    )
