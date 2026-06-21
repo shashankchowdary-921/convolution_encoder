@@ -1,6 +1,4 @@
 class ConvolutionalEncoder:
-    """Rate-1/2, K=3 convolutional encoder with G1=111, G2=101."""
-
     def __init__(self):
         self.reg = [0, 0, 0]
         self.g1_taps = [0, 1, 2]
@@ -34,11 +32,6 @@ class ConvolutionalEncoder:
         return ''.join(output)
 
     def encode_punctured(self, bits: str, terminate: bool = True) -> str:
-        """
-        Rate 2/3 via puncturing pattern [1,1,1,0] applied to rate-1/2 output.
-        Every 4 bits of rate-1/2 output, drop the 4th bit.
-        Output rate: 3 bits per 2 input bits.
-        """
         rate_half = self.encode(bits, terminate=terminate)
         output = []
         for i, bit in enumerate(rate_half):
