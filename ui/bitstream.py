@@ -20,15 +20,16 @@ def render_diff_html(reference, target):
     """
     spans = []
     for i, bit in enumerate(target):
-    ref_bit = reference[i] if i < len(reference) else None    mismatch = ref_bit is not None and bit != ref_bit
+        ref_bit = reference[i] if i < len(reference) else None
+        mismatch = ref_bit is not None and bit != ref_bit
         if mismatch:
             spans.append(
-                f'<span style="color:#ffffff; background:#d92626; '
-                f'padding:0 2px; border-radius:2px;">{bit}</span>'
+                f'<span style="color:#ffffff; background:#e0353f; '
+                f'padding:1px 3px; border-radius:3px; font-weight:700;">{bit}</span>'
             )
         else:
             spans.append(
-                f'<span style="color:#5b6b85;">{bit}</span>'
+                f'<span style="color:#d6def0;">{bit}</span>'
             )
         if (i + 1) % 8 == 0:
             spans.append(" ")
