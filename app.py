@@ -109,14 +109,14 @@ binary = text_to_bits(input_text)
 
 encoded = encoder.encode(binary)
 
-st.write("binary:", len(binary), "encoded:", len(encoded))
+
 
 received, tx_symbols, rx_symbols = channel.transmit(
     encoded,
     snr_db
 )
 
-st.write("received len:", len(received))
+
 
 channel_errors = sum(
     1
@@ -128,7 +128,6 @@ decoded_result = decoder.decode_with_trellis(received)
 
 decoded_raw = decoded_result["output"]
 
-st.write("binary len:", len(binary), "decoded_raw len:", len(decoded_raw))
 
 decoded = decoded_raw[:-2]
 
