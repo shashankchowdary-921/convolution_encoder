@@ -91,7 +91,7 @@ def render_constellation_plot(
     snr_db: float
 ):
     fig, ax = plt.subplots(figsize=(3.2, 2.3))
-
+    st.markdown('<div style="max-width:320px">', unsafe_allow_html=True)
     jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
     ax.scatter(
         rx_symbols, jitter,
@@ -125,6 +125,7 @@ def render_constellation_plot(
     ax.grid(True, alpha=0.3)
 
     st.pyplot(fig)
+    st.markdown('</div>', unsafe_allow_html=True)
     plt.close(fig)
     st.caption(
         "Each dot is one received symbol after AWGN corruption. "
