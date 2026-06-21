@@ -1,68 +1,39 @@
 import streamlit as st
 
-from ui.pipeline.stage import render_stage
+def render_transmission_section(
+    input_text,
+    recovered_text,
+    ber,
+    errors_introduced,
+    errors_corrected,
+    recovery_efficiency
+):
 
+    st.subheader("Transmission Result")
 
-def render_pipeline_section(stage):
+    col1, col2 = st.columns(2)
 
-    st.subheader(
-        "Communication Pipeline"
-    )
+    with col1:
+        st.write("Input Message")
+        st.write(input_text)
 
-    cols = st.columns(
-        [2,1,2,1,2,1,2,1,2]
-    )
+    with col2:
+        st.write("Recovered Message")
+        st.write(recovered_text)
 
-    with cols[0]:
-        render_stage(
-            "Binary",
-            stage["binary"]
-        )
+    c1, c2, c3, c4 = st.columns(4)
 
-    with cols[1]:
-        st.markdown(
-            "<h2 style='text-align:center;'>→</h2>",
-            unsafe_allow_html=True
-        )
+    with c1:
+        st.metric("BER", f"{ber:.6f}")
 
-    with cols[2]:
-        render_stage(
-            "Encoder",
-            stage["encoded"]
-        )
+    with c2:
+        st.metric("Errors Introduced", errors_introduced)
 
-    with cols[3]:
-        st.markdown(
-            "<h2 style='text-align:center;'>→</h2>",
-            unsafe_allow_html=True
-        )
+    with c3:
+        st.metric("Errors Corrected", errors_corrected)
 
-    with cols[4]:
-        render_stage(
-            "AWGN",
-            f'{stage["snr"]} dB'
-        )
-
-    with cols[5]:
-        st.markdown(
-            "<h2 style='text-align:center;'>→</h2>",
-            unsafe_allow_html=True
-        )
-
-    with cols[6]:
-        render_stage(
-            "Decoder",
-            stage["decoded"]
-        )
-
-    with cols[7]:
-        st.markdown(
-            "<h2 style='text-align:center;'>→</h2>",
-            unsafe_allow_html=True
-        )
-
-    with cols[8]:
-        render_stage(
-            "Output",
-            stage["recovered"][:10]
+    with c4:
+        st.metric(
+            "Recovery Efficiency",
+            f"{recovery_efficiency:.1f}%"
         )
