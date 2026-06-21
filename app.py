@@ -262,6 +262,13 @@ if show_ber:
     with st.spinner(
         "Running BER analysis..."
     ):
+        ber_test_message = (
+            "The quick brown fox jumps over the lazy dog "
+            "while engineers debug convolutional codes."
+        )
+        ber_test_bits = text_to_bits(ber_test_message)
+        ber_test_encoded = encoder.encode(ber_test_bits)
+
         snr_values = np.arange(
             0,
             11,
@@ -269,22 +276,23 @@ if show_ber:
         )
         ber_values = []
         progress = st.progress(0)
-        num_trials = 10
+        num_trials = 50
         for idx, snr in enumerate(
             snr_values
         ):
             trial_bers = []
             for _ in range(num_trials):
                 rx_bits, _, _ = channel.transmit(
-                    encoded,
+                    ber_test_encoded,
                     snr
                 )
                 decoded_bits = decoder.decode(
                     rx_bits
                 )
+                decoded_bits = decoded_bits[:-2]
                 trial_bers.append(
                     calculate_ber(
-                        binary,
+                        ber_test_bits,
                         decoded_bits
                     )
                 )
