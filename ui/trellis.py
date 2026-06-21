@@ -56,39 +56,41 @@ def render_trellis(trellis_path):
     )
 
     fig.update_layout(
-        title="Viterbi Trellis — Survivor Path",
-        template="plotly_white",
+        title=dict(
+            text="Viterbi Trellis — Survivor Path",
+            font=dict(color="#111111", size=18),
+        ),
         height=420,
-        margin=dict(l=60, r=30, t=60, b=50),
-        xaxis_title="Time Step (received bit pair index)",
-        yaxis_title="Encoder State",
+        margin=dict(l=70, r=30, t=60, b=60),
         paper_bgcolor="#FFFFFF",
         plot_bgcolor="#FFFFFF",
-        font=dict(color="#374151"),
+        xaxis=dict(
+            title=dict(text="Time Step (received bit pair index)", font=dict(color="#374151", size=13)),
+            tickfont=dict(color="#374151", size=11),
+            gridcolor="#E5E3DD",
+            linecolor="#9CA3AF",
+            zerolinecolor="#9CA3AF",
+            rangeslider=dict(visible=len(trellis_path) > 60, bgcolor="#F0EFEA", bordercolor="#E5E3DD"),
+        ),
+        yaxis=dict(
+            title=dict(text="Encoder State", font=dict(color="#374151", size=13)),
+            tickfont=dict(color="#374151", size=11),
+            tickmode="array",
+            tickvals=[0, 1, 2, 3],
+            ticktext=[f"{v} ({STATE_LABELS[v]})" for v in range(4)],
+            range=[-0.5, 3.5],
+            gridcolor="#E5E3DD",
+            linecolor="#9CA3AF",
+        ),
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=1.02,
+            y=1.05,
             xanchor="right",
             x=1,
+            font=dict(color="#374151", size=12),
         ),
         hovermode="closest",
-    )
-
-    fig.update_yaxes(
-        tickmode="array",
-        tickvals=[0, 1, 2, 3],
-        ticktext=[f"{v} ({STATE_LABELS[v]})" for v in range(4)],
-        range=[-0.5, 3.5],
-        gridcolor="#E5E3DD",
-        linecolor="#E5E3DD",
-    )
-
-    fig.update_xaxes(
-        gridcolor="#F0EFEA",
-        linecolor="#E5E3DD",
-        rangeslider_visible=len(trellis_path) > 60,
-        rangeslider=dict(bgcolor="#F8F7F4"),
     )
 
     st.plotly_chart(fig, width="stretch")
