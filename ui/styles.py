@@ -32,18 +32,15 @@ def apply_custom_css():
         display: inline-block;
     }
     h3 {
-        font-size: 1.1rem;
+        font-size: 0.8rem;
         color: #4F46E5;
         text-transform: uppercase;
         letter-spacing: 0.04em;
-        font-size: 0.8rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
     }
 
     /* ===== MAJOR CONTAINER ===== */
-    /* Use: st.container(border=False) wrapped in a div with this class,
-       OR apply via st.markdown div wrapper around a whole section */
     .major-container {
         background: #FFFFFF;
         border: 1px solid #E5E3DD;
@@ -62,9 +59,10 @@ def apply_custom_css():
     }
 
     /* ===== NATIVE STREAMLIT BORDERED CONTAINERS ===== */
-    /* st.container(border=True) renders as div[data-testid="stVerticalBlockBorderWrapper"] */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: #FFFFFF;
+    div[data-testid="stVerticalBlockBorderWrapper"],
+    div[data-testid="stContainer"],
+    .stContainer > div:first-child {
+        background: #FFFFFF !important;
         border: 1px solid #E5E3DD !important;
         border-radius: 12px !important;
         box-shadow: 0 1px 2px rgba(17, 17, 17, 0.03);
@@ -114,13 +112,3 @@ def apply_custom_css():
 
     </style>
     """, unsafe_allow_html=True)
-
-/* Fallback selectors for different Streamlit versions */
-    div[data-testid="stVerticalBlockBorderWrapper"],
-    div[data-testid="stContainer"],
-    .stContainer > div:first-child {
-        background: #FFFFFF !important;
-        border: 1px solid #E5E3DD !important;
-        border-radius: 12px !important;
-        box-shadow: 0 1px 2px rgba(17, 17, 17, 0.03);
-    }
