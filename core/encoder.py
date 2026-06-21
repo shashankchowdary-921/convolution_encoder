@@ -1,8 +1,5 @@
-import streamlit as st
-
-
 class ConvolutionalEncoder:
-    """Rate-1/2, K=3 convolutional encoder with G₁=111, G₂=101."""
+    """Rate-1/2, K=3 convolutional encoder with G1=111, G2=101."""
 
     def __init__(self):
         self.reg = [0, 0, 0]          # shift register [x[n], x[n-1], x[n-2]]
@@ -30,7 +27,6 @@ class ConvolutionalEncoder:
         shift register returns to the all-zero state at the end,
         giving Viterbi a known terminal state to trace back from.
         """
-
         self.reset()
         if terminate:
             bits = bits + '0' * 2
@@ -42,4 +38,3 @@ class ConvolutionalEncoder:
             output.append(str(out1))
             output.append(str(out2))
         return ''.join(output)
-        
