@@ -19,7 +19,6 @@ from ui.ber import (
 from ui.styles import apply_custom_css
 from ui.header import render_header
 from ui.control_panel import render_control_panel
-from ui.metrics import render_metrics
 from ui.bitstream import render_bitstream, render_bit_comparison
 from ui.trellis import render_trellis
 from ui.pipeline.section import render_pipeline_section
@@ -33,17 +32,21 @@ st.set_page_config(
 
 apply_custom_css()
 
+
 @st.cache_resource
 def get_encoder():
     return ConvolutionalEncoder()
+
 
 @st.cache_resource
 def get_decoder():
     return ViterbiDecoder()
 
+
 @st.cache_resource
 def get_channel():
     return AWGNChannel()
+
 
 encoder = get_encoder()
 decoder = get_decoder()
@@ -96,7 +99,7 @@ stage = {
 render_pipeline_section(stage)
 
 render_transmission_section(
-    input_text, snr_db, code_rate, show_trellis, show_ber = render_control_panel(),
+    input_text=input_text,
     recovered_text=recovered_text,
     ber=ber,
     errors_introduced=channel_errors,
