@@ -128,4 +128,11 @@ def apply_custom_css():
     }
 
     </style>
+    /* ===== PLOTLY CHART TEXT — scoped, won't leak in/out ===== */
+    .js-plotly-plot .plotly text {
+        fill: #374151 !important;
+    }
+    .js-plotly-plot .gtitle {
+        fill: #111111 !important;
+    }
     """, unsafe_allow_html=True)
