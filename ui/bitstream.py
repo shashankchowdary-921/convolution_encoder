@@ -22,10 +22,15 @@ def render_diff_html(reference, target):
     for i, bit in enumerate(target):
         ref_bit = reference[i] if i < len(reference) else None
         mismatch = ref_bit is not None and bit != ref_bit
-        color = "#ff5f5f" if mismatch else "#7fffaf"
-        spans.append(
-            f'<span style="color:{color};">{bit}</span>'
-        )
+        if mismatch:
+            spans.append(
+                f'<span style="color:#ffffff; background:#d92626; '
+                f'padding:0 2px; border-radius:2px;">{bit}</span>'
+            )
+        else:
+            spans.append(
+                f'<span style="color:#5b6b85;">{bit}</span>'
+            )
         if (i + 1) % 8 == 0:
             spans.append(" ")
     return "".join(spans)
@@ -36,10 +41,8 @@ def render_bit_comparison(original, received, decoded):
         "Received and Decoded shown against Original — "
         "mismatched bits highlighted in red"
     )
-
     st.markdown("**Original**")
     st.code(group_bits(original), language="text")
-
     st.markdown("**Received** (after AWGN channel)")
     st.markdown(
         f'<div style="font-family:monospace; background:#0e1117; '
@@ -47,7 +50,6 @@ def render_bit_comparison(original, received, decoded):
         f'line-height:1.8;">{render_diff_html(original, received)}</div>',
         unsafe_allow_html=True
     )
-
     st.markdown("**Decoded** (after Viterbi correction)")
     st.markdown(
         f'<div style="font-family:monospace; background:#0e1117; '
