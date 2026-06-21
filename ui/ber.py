@@ -90,11 +90,11 @@ def render_ber_plot(
     plt.close(fig)
 
     if num_trials is not None and snr_step is not None:
-    st.caption(
-        "Each dot is one received symbol after AWGN corruption. "
-        "Vertical spread is jitter for visibility (BPSK has no quadrature component). "
-        "Symbols crossing x = 0 become bit errors."
-    )
+        st.caption(
+            f"Methodology: each point averaged over {num_trials} independent "
+            f"AWGN trials, SNR swept in {snr_step} dB steps. Codeword "
+            f"terminated (K-1 flush bits) before transmission."
+        )
 def render_constellation_plot(tx_symbols: np.ndarray, rx_symbols: np.ndarray, snr_db: float):
     fig, ax = plt.subplots(figsize=(5, 5))
 
