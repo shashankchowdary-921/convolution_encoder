@@ -124,8 +124,9 @@ def render_constellation_plot(
     ax.legend(loc="upper right", fontsize=8)
     ax.grid(True, alpha=0.3)
 
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
     st.pyplot(fig)
-    st.markdown('</div>', unsafe_allow_html=True)
     plt.close(fig)
     st.caption(
         "Each dot is one received symbol after AWGN corruption. "
