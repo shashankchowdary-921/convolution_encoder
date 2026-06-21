@@ -4,15 +4,19 @@ import numpy as np
 
 def find_coding_gain(snr_values, ber_values, theoretical_ber):
     """
-    Find the SNR gap between simulated and theoretical curves
-    at the lowest BER level the simulated curve actually reaches
-    (excluding zero/floored points, which can't give a meaningful gap).
+    Find the SNR gap between simulated and theoretical curves,
+    measured at a BER level with genuine (non-floored) statistics —
+    not at the floor edge, where a single bit error vs zero errors
+    is the difference between two trial outcomes, not a stable estimate.
     """
     snr_values = np.array(snr_values)
     ber_values = np.array(ber_values)
     theoretical_ber = np.array(theoretical_ber)
 
-    valid = ber_values > 1e-4
+    ber_floor = 1e-4
+    # Require comfortably above the floor — real, resolved statistics
+    valid = ber_values > ber_floor * 3
+
     if not np.any(valid):
         return None
 
