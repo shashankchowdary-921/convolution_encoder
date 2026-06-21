@@ -21,6 +21,7 @@ class ConvolutionalEncoder:
         return result
 
     def encode(self, bits: str, terminate: bool = True) -> str:
+        print("ENCODE CALLED, terminate =", terminate, "input len =", len(bits))
         """
         Encode a binary string, returns double-length codeword.
         If terminate=True, appends (K-1)=2 zero flush bits so the
