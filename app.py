@@ -106,7 +106,8 @@ render_header()
 # PROCESSING
 # =====================================================
 
-bbinary = text_to_bits(input_text)
+
+binary = text_to_bits(input_text)
 
 encoded = encoder.encode(binary)
 
