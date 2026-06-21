@@ -15,15 +15,14 @@ calculate_ber
 )
 
 from ui import (
-apply_custom_css,
-render_header,
-render_control_panel,
-render_pipeline_section(stage),
-render_metrics,
-render_bitstream,
-render_bit_comparison,
-render_trellis,
-render_ber_plot
+    apply_custom_css,
+    render_header,
+    render_control_panel,
+    render_metrics,
+    render_bitstream,
+    render_bit_comparison,
+    render_trellis,
+    render_ber_plot
 )
 from ui.transmission.section import (
     render_transmission_section
