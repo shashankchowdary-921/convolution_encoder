@@ -1,5 +1,17 @@
 import streamlit as st
 
+def render_metric_box(title, value, accent=False):
+    value_class = "metric-value-accent" if accent else "metric-value"
+    st.markdown(
+        f'''
+        <div class="pipeline-stage">
+            <div class="metric-title">{title}</div>
+            <div class="{value_class}" style="margin-top:6px;">{value}</div>
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
 def render_transmission_section(
     input_text,
     recovered_text,
@@ -8,32 +20,26 @@ def render_transmission_section(
     errors_corrected,
     recovery_efficiency
 ):
-
     st.subheader("Transmission Result")
 
     col1, col2 = st.columns(2)
-
     with col1:
-        st.write("Input Message")
-        st.write(input_text)
-
+        render_metric_box("Input Message", input_text)
     with col2:
-        st.write("Recovered Message")
-        st.write(recovered_text)
+        render_metric_box("Recovered Message", recovered_text)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
-
     with c1:
-        st.metric("BER", f"{ber:.6f}")
-
+        render_metric_box("BER", f"{ber:.6f}")
     with c2:
-        st.metric("Errors Introduced", errors_introduced)
-
+        render_metric_box("Errors Introduced", errors_introduced)
     with c3:
-        st.metric("Errors Corrected", errors_corrected)
-
+        render_metric_box("Errors Corrected", errors_corrected)
     with c4:
-        st.metric(
+        render_metric_box(
             "Recovery Efficiency",
-            f"{recovery_efficiency:.1f}%"
+            f"{recovery_efficiency:.1f}%",
+            accent=True
         )
