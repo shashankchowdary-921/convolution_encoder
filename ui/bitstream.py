@@ -42,7 +42,12 @@ def render_bit_comparison(original, received, decoded):
         "mismatched bits highlighted in red"
     )
     st.markdown("**Original**")
-    st.code(group_bits(original), language="text")
+    st.markdown(
+        f'<div style="font-family:monospace; background:#0e1117; '
+        f'color:#d6def0; padding:12px; border-radius:6px; '
+        f'word-break:break-all; line-height:1.8;">{group_bits(original)}</div>',
+        unsafe_allow_html=True
+    )
     st.markdown("**Received** (after AWGN channel)")
     st.markdown(
         f'<div style="font-family:monospace; background:#0e1117; '
