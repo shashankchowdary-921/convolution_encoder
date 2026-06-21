@@ -1,10 +1,12 @@
 import streamlit as st
 
+
 def group_bits(bits, group_size=8):
     return " ".join(
         bits[i:i+group_size]
         for i in range(0, len(bits), group_size)
     )
+
 
 def render_bitstream(bits, title):
     st.subheader(title)
@@ -13,11 +15,8 @@ def render_bitstream(bits, title):
         language="text"
     )
 
+
 def render_diff_html(reference, target):
-    """
-    Build an HTML string highlighting bit positions where
-    target differs from reference. Grouped in bytes of 8.
-    """
     spans = []
     for i, bit in enumerate(target):
         ref_bit = reference[i] if i < len(reference) else None
@@ -35,12 +34,40 @@ def render_diff_html(reference, target):
             spans.append(" ")
     return "".join(spans)
 
+
 def render_bit_comparison(original, received, decoded):
     st.subheader("Bitstream Comparison")
     st.caption(
         "Received and Decoded shown against Original — "
         "mismatched bits highlighted in red"
     )
+
+    total_bits = len(original)
+    flipped = sum(1 for i, b in enumerate(received) if i < len(original) and b != original[i])
+    corrected = sum(1 for i, b in enumerate(decoded) if i < len(original) and b != original[i])
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown(
+            f'<div class="minor-container"><div class="metric-title">Total Bits</div>'
+            f'<div class="metric-value">{total_bits}</div></div>',
+            unsafe_allow_html=True
+        )
+    with col2:
+        st.markdown(
+            f'<div class="minor-container"><div class="metric-title">Bits Flipped by Channel</div>'
+            f'<div class="metric-value" style="color:#e0353f;">{flipped}</div></div>',
+            unsafe_allow_html=True
+        )
+    with col3:
+        st.markdown(
+            f'<div class="minor-container"><div class="metric-title">Remaining Errors</div>'
+            f'<div class="metric-value" style="color:{"#e0353f" if corrected > 0 else "#16a34a"};">{corrected}</div></div>',
+            unsafe_allow_html=True
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     st.markdown("**Original**")
     st.markdown(
         f'<div style="font-family:monospace; background:#0e1117; '
@@ -48,6 +75,7 @@ def render_bit_comparison(original, received, decoded):
         f'word-break:break-all; line-height:1.8;">{group_bits(original)}</div>',
         unsafe_allow_html=True
     )
+
     st.markdown("**Received** (after AWGN channel)")
     st.markdown(
         f'<div style="font-family:monospace; background:#0e1117; '
@@ -55,6 +83,7 @@ def render_bit_comparison(original, received, decoded):
         f'line-height:1.8;">{render_diff_html(original, received)}</div>',
         unsafe_allow_html=True
     )
+
     st.markdown("**Decoded** (after Viterbi correction)")
     st.markdown(
         f'<div style="font-family:monospace; background:#0e1117; '
