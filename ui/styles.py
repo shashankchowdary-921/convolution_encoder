@@ -110,10 +110,15 @@ def apply_custom_css():
         text-align: center;
     }
     .pipeline-arrow {
-        color: #C7C5BE;
-        font-size: 1.3rem;
+        color: #9B9890;
+        font-size: 1.9rem;
+        font-weight: 600;
         text-align: center;
-        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 88px;
     }
 
     /* ===== CODE / MONOSPACE BLOCKS ===== */
