@@ -90,7 +90,7 @@ def render_constellation_plot(
     rx_symbols: np.ndarray,
     snr_db: float
 ):
-    fig, ax = plt.subplots(figsize=(3.7, 2.9))
+    fig, ax = plt.subplots(figsize=(3.2, 2.3))
 
     jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
     ax.scatter(
