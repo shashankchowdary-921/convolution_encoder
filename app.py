@@ -106,7 +106,7 @@ render_header()
 # PROCESSING
 # =====================================================
 
-binary = text_to_bits(input_text)
+bbinary = text_to_bits(input_text)
 
 encoded = encoder.encode(binary)
 
@@ -139,6 +139,12 @@ remaining_errors = sum(
     for a, b in zip(binary, decoded)
     if a != b
 )
+
+errors_corrected = max(
+    channel_errors - remaining_errors,
+    0
+)
+
 # =====================================================
 # RECOVERY METRICS
 # =====================================================
@@ -152,8 +158,6 @@ if channel_errors > 0:
         /
         channel_errors
     ) * 100
-# =====================================================
-
 # PIPELINE DATA
 
 # =====================================================
