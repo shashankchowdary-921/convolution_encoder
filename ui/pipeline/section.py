@@ -56,5 +56,5 @@ def render_pipeline_section(stage):
     with c5:
         render_stage(
             "Output",
-            stage["recovered"][:10]
+            stage["recovered"]
         )
