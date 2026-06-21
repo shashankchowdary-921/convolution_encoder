@@ -1,8 +1,14 @@
 import streamlit as st
 import numpy as np
 import math
-from ui.pipeline.section import (
-    render_pipeline_section
+
+from core.encoder import ConvolutionalEncoder
+from core.decoder import ViterbiDecoder
+from core.channel import AWGNChannel
+from core.utils import (
+    text_to_bits,
+    bits_to_text,
+    calculate_ber
 )
 
 from ui.styles import apply_custom_css
@@ -33,20 +39,6 @@ from ui.ber import (
 from ui.pipeline.section import (
     render_pipeline_section
 )
-
-from ui.transmission.section import (
-    render_transmission_section
-)
-
-from core.encoder import ConvolutionalEncoder
-from core.decoder import ViterbiDecoder
-from core.channel import AWGNChannel
-from core.utils import (
-text_to_bits,
-bits_to_text,
-calculate_ber
-)
-
 
 from ui.transmission.section import (
     render_transmission_section
