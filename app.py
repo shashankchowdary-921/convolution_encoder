@@ -11,6 +11,11 @@ from core.utils import (
     calculate_ber
 )
 
+from ui.ber import (
+    render_ber_plot,
+    render_constellation_plot  # add this
+)
+
 from ui.styles import apply_custom_css
 
 from ui.header import render_header
@@ -307,6 +312,9 @@ if show_ber:
                 / len(snr_values)
             )
         progress.empty()
+        st.markdown("---")
+        st.subheader("BPSK Constellation Diagram")
+        render_constellation_plot(tx_symbols, rx_symbols, snr_db)
         def q_function(x):
             return 0.5 * (
                 1 -
