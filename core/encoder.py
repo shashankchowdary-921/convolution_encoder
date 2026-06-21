@@ -1,26 +1,26 @@
 class ConvolutionalEncoder:
     """Rate-1/2, K=3 convolutional encoder with G₁=111, G₂=101."""
-    
+
     def __init__(self):
         self.reg = [0, 0, 0]          # shift register [x[n], x[n-1], x[n-2]]
         self.g1_taps = [0, 1, 2]      # 111
         self.g2_taps = [0, 2]         # 101
-    
+
     def reset(self):
         self.reg = [0, 0, 0]
-    
+
     def _shift(self, bit: int):
         self.reg[2] = self.reg[1]
         self.reg[1] = self.reg[0]
         self.reg[0] = bit
-    
+
     def _compute_output(self, taps):
         result = 0
         for tap in taps:
             result ^= self.reg[tap]
         return result
-    
-def encode(self, bits: str, terminate: bool = True) -> str:
+
+    def encode(self, bits: str, terminate: bool = True) -> str:
         """
         Encode a binary string, returns double-length codeword.
         If terminate=True, appends (K-1)=2 zero flush bits so the
