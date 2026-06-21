@@ -91,7 +91,7 @@ def render_constellation_plot(
     snr_db: float
 ):
     fig, ax = plt.subplots(figsize=(3.2, 2.3))
-    st.markdown('<div style="max-width:320px">', unsafe_allow_html=True)
+
     jitter = np.random.normal(0, 0.08, size=rx_symbols.shape)
     ax.scatter(
         rx_symbols, jitter,
@@ -115,7 +115,6 @@ def render_constellation_plot(
         )
 
     ax.axvline(0, color="#E11D48", linestyle="--", linewidth=1.2, label="Decision boundary")
-
     ax.set_xlim(-3, 3)
     ax.set_ylim(-1, 1)
     ax.set_xlabel("In-phase (I)")
@@ -126,7 +125,7 @@ def render_constellation_plot(
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-    st.pyplot(fig)
+        st.pyplot(fig)
     plt.close(fig)
     st.caption(
         "Each dot is one received symbol after AWGN corruption. "
