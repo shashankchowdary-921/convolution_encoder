@@ -26,8 +26,8 @@ def render_trellis(trellis_path):
             x=x,
             y=y,
             mode="lines+markers",
-            line=dict(color="#7c9cff", width=2),
-            marker=dict(size=5, color="#7c9cff"),
+            line=dict(color="#4F46E5", width=2),
+            marker=dict(size=5, color="#4F46E5"),
             name="Decoded Path",
             hovertemplate="Step %{x}<br>State %{y}<extra></extra>",
         )
@@ -38,7 +38,7 @@ def render_trellis(trellis_path):
             x=[0],
             y=[trellis_path[0]["from_state"]],
             mode="markers",
-            marker=dict(size=12, color="#3ddc84", symbol="circle"),
+            marker=dict(size=12, color="#16A34A", symbol="circle"),
             name="Start (00)",
             hoverinfo="skip",
         )
@@ -49,7 +49,7 @@ def render_trellis(trellis_path):
             x=[len(trellis_path)],
             y=[trellis_path[-1]["to_state"]],
             mode="markers",
-            marker=dict(size=12, color="#ff6b6b", symbol="circle"),
+            marker=dict(size=12, color="#DC2626", symbol="circle"),
             name="End",
             hoverinfo="skip",
         )
@@ -62,6 +62,9 @@ def render_trellis(trellis_path):
         margin=dict(l=60, r=30, t=60, b=50),
         xaxis_title="Time Step (received bit pair index)",
         yaxis_title="Encoder State",
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#FFFFFF",
+        font=dict(color="#374151"),
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -77,12 +80,15 @@ def render_trellis(trellis_path):
         tickvals=[0, 1, 2, 3],
         ticktext=[f"{v} ({STATE_LABELS[v]})" for v in range(4)],
         range=[-0.5, 3.5],
-        gridcolor="#e8e8e8",
+        gridcolor="#E5E3DD",
+        linecolor="#E5E3DD",
     )
 
     fig.update_xaxes(
-        gridcolor="#f0f0f0",
+        gridcolor="#F0EFEA",
+        linecolor="#E5E3DD",
         rangeslider_visible=len(trellis_path) > 60,
+        rangeslider=dict(bgcolor="#F8F7F4"),
     )
 
     st.plotly_chart(fig, width="stretch")
