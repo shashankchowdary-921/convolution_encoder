@@ -110,6 +110,9 @@ render_header()
 binary = text_to_bits(input_text)
 
 encoded = encoder.encode(binary)
+encoded = encoder.encode(binary)
+
+st.write("binary:", len(binary), "encoded:", len(encoded))
 
 received, tx_symbols, rx_symbols = channel.transmit(
     encoded,
