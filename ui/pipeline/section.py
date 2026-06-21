@@ -1,6 +1,7 @@
 import streamlit as st
 
-from ui.pipeline.stage import render_stage
+
+
 
 
 def render_pipeline_section(stage):
