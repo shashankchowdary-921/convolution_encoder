@@ -8,6 +8,8 @@ def bits_to_text(bits: str) -> str:
         bits = bits + '0' * (8 - len(bits) % 8)
     chars = [chr(int(bits[i:i+8], 2)) for i in range(0, len(bits), 8)]
     return ''.join(chars)
+    print("DEBUG repr:", repr(recovered_message))
+    print("DEBUG len:", len(recovered_message))
 
 def calculate_ber(original: str, recovered: str) -> float:
     """Calculate Bit Error Rate between two binary strings."""
