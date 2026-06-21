@@ -114,3 +114,13 @@ def apply_custom_css():
 
     </style>
     """, unsafe_allow_html=True)
+
+/* Fallback selectors for different Streamlit versions */
+    div[data-testid="stVerticalBlockBorderWrapper"],
+    div[data-testid="stContainer"],
+    .stContainer > div:first-child {
+        background: #FFFFFF !important;
+        border: 1px solid #E5E3DD !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 2px rgba(17, 17, 17, 0.03);
+    }
