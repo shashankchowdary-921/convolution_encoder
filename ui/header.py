@@ -10,7 +10,7 @@ def render_header():
         '<div style="font-size:0.82rem;color:#475569;"><span style="color:#4F46E5;font-weight:600;">Rate</span> &nbsp;1/2</div>'
         '<div style="font-size:0.82rem;color:#475569;"><span style="color:#4F46E5;font-weight:600;">Constraint Length</span> &nbsp;K = 3</div>'
         '<div style="font-size:0.82rem;color:#475569;"><span style="color:#4F46E5;font-weight:600;">Generator</span> &nbsp;G1=111 · G2=101</div>'
-        '<div style="font-size:0.82rem;color:#475569;"><span style="color:#4F46E5;font-weight:600;">Decoder</span> &nbsp;Viterbi (Hard Decision)</div>'
+        '<div style="font-size:0.82rem;color:#475569;"><span style="color:#4F46E5;font-weight:600;">Decoder</span> &nbsp;Viterbi decoder</div>'
         '</div>'
         '</div>',
         unsafe_allow_html=True
