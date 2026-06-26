@@ -244,3 +244,120 @@ class ViterbiDecoder:
             "output": "".join(decoded_bits),
             "trellis_path": trellis_path
         }
+def _depuncture(self, received_bits):
+    """Reinsert erasure placeholder (2) at punctured positions (every 4th bit, index 3)."""
+    bits = [int(b) for b in received_bits]
+    output = []
+    out_idx = 0
+    in_idx = 0
+    while in_idx < len(bits):
+        # Pattern repeats every 3 received bits → 4 positions (pos 3 is erased)
+        pos_in_group = out_idx % 4
+        if pos_in_group == 3:
+            output.append(2)  # erasure
+            out_idx += 1
+        else:
+            output.append(bits[in_idx])
+            in_idx += 1
+            out_idx += 1
+    return output
+
+def _hamming_distance_erasure(self, received, expected):
+    """Hamming distance that ignores erasure positions (value=2)."""
+    dist = 0
+    if received[0] != 2:
+        dist += received[0] ^ expected[0]
+    if received[1] != 2:
+        dist += received[1] ^ expected[1]
+    return dist
+
+def decode_punctured(self, received_bits):
+    depunctured = self._depuncture(received_bits)
+    if len(depunctured) % 2 != 0:
+        depunctured.append(2)
+
+    received_pairs = [
+        (depunctured[i], depunctured[i+1])
+        for i in range(0, len(depunctured), 2)
+    ]
+
+    path_metrics = [float("inf")] * self.num_states
+    path_metrics[0] = 0
+    survivors = []
+
+    for pair in received_pairs:
+        new_metrics = [float("inf")] * self.num_states
+        survivor_step = {}
+        for state in range(self.num_states):
+            if path_metrics[state] == float("inf"):
+                continue
+            for input_bit in [0, 1]:
+                next_state = self.next_state[(state, input_bit)]
+                expected_output = self.output[(state, input_bit)]
+                branch_metric = self._hamming_distance_erasure(pair, expected_output)
+                metric = path_metrics[state] + branch_metric
+                if metric < new_metrics[next_state]:
+                    new_metrics[next_state] = metric
+                    survivor_step[next_state] = (state, input_bit)
+        path_metrics = new_metrics
+        survivors.append(survivor_step)
+
+    best_state = min(range(self.num_states), key=lambda s: path_metrics[s])
+    decoded_bits = []
+    for step in range(len(survivors) - 1, -1, -1):
+        prev_state, input_bit = survivors[step][best_state]
+        decoded_bits.append(str(input_bit))
+        best_state = prev_state
+    decoded_bits.reverse()
+    return "".join(decoded_bits)
+
+def decode_punctured_with_trellis(self, received_bits):
+    depunctured = self._depuncture(received_bits)
+    if len(depunctured) % 2 != 0:
+        depunctured.append(2)
+
+    received_pairs = [
+        (depunctured[i], depunctured[i+1])
+        for i in range(0, len(depunctured), 2)
+    ]
+
+    path_metrics = [float("inf")] * self.num_states
+    path_metrics[0] = 0
+    survivors = []
+
+    for pair in received_pairs:
+        new_metrics = [float("inf")] * self.num_states
+        survivor_step = {}
+        for state in range(self.num_states):
+            if path_metrics[state] == float("inf"):
+                continue
+            for input_bit in [0, 1]:
+                next_state = self.next_state[(state, input_bit)]
+                expected_output = self.output[(state, input_bit)]
+                branch_metric = self._hamming_distance_erasure(pair, expected_output)
+                metric = path_metrics[state] + branch_metric
+                if metric < new_metrics[next_state]:
+                    new_metrics[next_state] = metric
+                    survivor_step[next_state] = (state, input_bit)
+        path_metrics = new_metrics
+        survivors.append(survivor_step)
+
+    best_state = min(range(self.num_states), key=lambda s: path_metrics[s])
+    decoded_bits = []
+    trellis_path = []
+    current_state = best_state
+
+    for step in range(len(survivors) - 1, -1, -1):
+        prev_state, input_bit = survivors[step][current_state]
+        trellis_path.append({
+            "step": step,
+            "from_state": prev_state,
+            "to_state": current_state,
+            "input_bit": input_bit
+        })
+        decoded_bits.append(str(input_bit))
+        current_state = prev_state
+
+    decoded_bits.reverse()
+    trellis_path.reverse()
+    return {"output": "".join(decoded_bits), "trellis_path": trellis_path}
