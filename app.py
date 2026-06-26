@@ -86,7 +86,7 @@ errors_corrected = max(channel_errors - remaining_errors, 0)
 
 recovery_efficiency = 100.0
 if channel_errors > 0:
-    recovery_efficiency = (errors_corrected / channel_errors) * 1000
+    recovery_efficiency = (errors_corrected / channel_errors) * 100
 
 # =====================================================
 # PIPELINE
