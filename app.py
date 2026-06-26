@@ -70,36 +70,6 @@ received, tx_symbols, rx_symbols = channel.transmit(encoded, snr_db)
 
 channel_errors = sum(1 for a, b in zip(encoded, received) if a != b)
 
-decoded_result = decoder.decode_with_trellis(received)
-decoded_raw = decoded_result["output"]
-decoded = decoded_raw[:-2]
-
-recovered_text = bits_to_text(decoded)
-ber = calculate_ber(binary, decoded)
-
-remaining_errors = sum(1 for a, b in zip(binary, decoded) if a != b)
-errors_corrected = max(channel_errors - remaining_errors, 0)
-
-recovery_efficiency = 100.0
-if channel_errors > 0:
-    recovery_efficiency = (errors_corrected / channel_errors) * 100
-
-
-
-# =====================================================
-# PROCESSING
-# =====================================================
-binary = text_to_bits(input_text)
-
-if code_rate == "2/3":
-    encoded = encoder.encode_punctured(binary)
-else:
-    encoded = encoder.encode(binary)
-
-received, tx_symbols, rx_symbols = channel.transmit(encoded, snr_db)
-
-channel_errors = sum(1 for a, b in zip(encoded, received) if a != b)
-
 if code_rate == "2/3":
     decoded_result = decoder.decode_punctured_with_trellis(received)
 else:
@@ -116,7 +86,7 @@ errors_corrected = max(channel_errors - remaining_errors, 0)
 
 recovery_efficiency = 100.0
 if channel_errors > 0:
-    recovery_efficiency = (errors_corrected / channel_errors) * 100
+    recovery_efficiency = (errors_corrected / channel_errors) * 1000
 
 # =====================================================
 # PIPELINE
