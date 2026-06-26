@@ -11,11 +11,7 @@ from core.utils import (
     calculate_ber
 )
 
-from ui.ber import (
-    render_ber_plot,
-    render_constellation_plot
-)
-
+from ui.ber import render_ber_plot
 from ui.styles import apply_custom_css
 from ui.header import render_header
 from ui.control_panel import render_control_panel
@@ -32,21 +28,17 @@ st.set_page_config(
 
 apply_custom_css()
 
-
 @st.cache_resource
 def get_encoder():
     return ConvolutionalEncoder()
-
 
 @st.cache_resource
 def get_decoder():
     return ViterbiDecoder()
 
-
 @st.cache_resource
 def get_channel():
     return AWGNChannel()
-
 
 encoder = get_encoder()
 decoder = get_decoder()
@@ -54,17 +46,13 @@ channel = get_channel()
 
 render_header()
 
-input_text, snr_db, code_rate, show_trellis, show_ber = render_control_panel()
+input_text, snr_db, show_trellis, show_ber = render_control_panel()
 
 # =====================================================
 # PROCESSING
 # =====================================================
 binary = text_to_bits(input_text)
-
-if code_rate == "2/3":
-    encoded = encoder.encode_punctured(binary)
-else:
-    encoded = encoder.encode(binary)
+encoded = encoder.encode(binary)
 
 received, tx_symbols, rx_symbols = channel.transmit(encoded, snr_db)
 
@@ -139,11 +127,7 @@ if show_ber:
             "while engineers debug convolutional codes."
         )
         ber_test_bits = text_to_bits(ber_test_message)
-
-        if code_rate == "2/3":
-            ber_test_encoded = encoder.encode_punctured(ber_test_bits)
-        else:
-            ber_test_encoded = encoder.encode(ber_test_bits)
+        ber_test_encoded = encoder.encode(ber_test_bits)
 
         snr_values = np.arange(0, 11, 0.5)
         ber_values = []
@@ -161,10 +145,6 @@ if show_ber:
             progress.progress((idx + 1) / len(snr_values))
 
         progress.empty()
-
-        st.markdown("---")
-        st.subheader("BPSK Constellation Diagram")
-        render_constellation_plot(tx_symbols, rx_symbols, snr_db)
 
         def q_function(x):
             return 0.5 * (1 - math.erf(x / np.sqrt(2)))
