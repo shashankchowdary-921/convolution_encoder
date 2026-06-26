@@ -84,6 +84,18 @@ recovery_efficiency = 100.0
 if channel_errors > 0:
     recovery_efficiency = (errors_corrected / channel_errors) * 100
 
+# Main decode
+if code_rate == "2/3":
+    decoded_result = decoder.decode_punctured_with_trellis(received)
+else:
+    decoded_result = decoder.decode_with_trellis(received)
+
+# BER loop decode
+if code_rate == "2/3":
+    decoded_bits = decoder.decode_punctured(rx_bits)
+else:
+    decoded_bits = decoder.decode(rx_bits)
+
 # =====================================================
 # PIPELINE
 # =====================================================
