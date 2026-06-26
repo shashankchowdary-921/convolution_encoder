@@ -84,17 +84,39 @@ recovery_efficiency = 100.0
 if channel_errors > 0:
     recovery_efficiency = (errors_corrected / channel_errors) * 100
 
-# Main decode
+
+
+# =====================================================
+# PROCESSING
+# =====================================================
+binary = text_to_bits(input_text)
+
+if code_rate == "2/3":
+    encoded = encoder.encode_punctured(binary)
+else:
+    encoded = encoder.encode(binary)
+
+received, tx_symbols, rx_symbols = channel.transmit(encoded, snr_db)
+
+channel_errors = sum(1 for a, b in zip(encoded, received) if a != b)
+
 if code_rate == "2/3":
     decoded_result = decoder.decode_punctured_with_trellis(received)
 else:
     decoded_result = decoder.decode_with_trellis(received)
 
-# BER loop decode
-if code_rate == "2/3":
-    decoded_bits = decoder.decode_punctured(rx_bits)
-else:
-    decoded_bits = decoder.decode(rx_bits)
+decoded_raw = decoded_result["output"]
+decoded = decoded_raw[:-2]
+
+recovered_text = bits_to_text(decoded)
+ber = calculate_ber(binary, decoded)
+
+remaining_errors = sum(1 for a, b in zip(binary, decoded) if a != b)
+errors_corrected = max(channel_errors - remaining_errors, 0)
+
+recovery_efficiency = 100.0
+if channel_errors > 0:
+    recovery_efficiency = (errors_corrected / channel_errors) * 100
 
 # =====================================================
 # PIPELINE
@@ -165,10 +187,13 @@ if show_ber:
         for idx, snr in enumerate(snr_values):
             trial_bers = []
             for _ in range(num_trials):
-                rx_bits, _, _ = channel.transmit(ber_test_encoded, snr)
-                decoded_bits = decoder.decode(rx_bits)
-                decoded_bits = decoded_bits[:-2]
-                trial_bers.append(calculate_ber(ber_test_bits, decoded_bits))
+                rx, _, _ = channel.transmit(ber_test_encoded, snr)
+                if code_rate == "2/3":
+                    dec_bits = decoder.decode_punctured(rx)
+                else:
+                    dec_bits = decoder.decode(rx)
+                dec_bits = dec_bits[:-2]
+                trial_bers.append(calculate_ber(ber_test_bits, dec_bits))
             ber_values.append(sum(trial_bers) / num_trials)
             progress.progress((idx + 1) / len(snr_values))
 
